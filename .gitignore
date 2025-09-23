@@ -1,0 +1,6 @@
+Data/
+.vscode/
+models/
+.git/
+logs/
+__pycache__/

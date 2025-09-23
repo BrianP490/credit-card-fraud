@@ -1,0 +1,8 @@
+# For streamlit using python 3.10; created using 'pipreqs . --force'
+torch==2.7.1+cpu
+--extra-index-url https://download.pytorch.org/whl/cpu
+numpy==2.2.6
+joblib==1.5.2
+pandas==2.3.2
+streamlit==1.47.1
+scikit-learn==1.7.1
