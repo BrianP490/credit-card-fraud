@@ -6,7 +6,7 @@
     "data_splits_dir": "DataSplits",
     "scaler_dir": "Scalers",
     "target_column": "ENTER TARGET COLUMN NAME HERE (ex. 'Price')",
-    "extra_dropped_columns": ["ADD ANY EXTRA COLUMNS THAT NEED TO BE DROPPED HERE"]
+    "dropped_columns": ["ADD ANY EXTRA COLUMNS THAT NEED TO BE DROPPED HERE"]
   }
   ,
   "parser_defaults": {
@@ -42,7 +42,7 @@
   },
   "training": {
     "optimizer": "adamw",
-    "loss_function": "mae",
+    "loss_function": "CrossEntropyLoss",
     "early_stopping": false,
     "early_stopping_patience": 10,
     "checkpoint_dir": "./checkpoints"
