@@ -6,3 +6,10 @@ repos:
     hooks:
     -   id: black-jupyter # For .py and .ipynb files
     # Automatically looks for the 'pyproject.toml' file for formatting details
+
+# --- The required configuration for Black + nbqa ---
+-   repo: https://github.com/nbqa-dev/nbqa
+    rev: 1.7.1 # Use the latest stable nbqa version
+    hooks:
+    -   id: nbqa-black # This hook runs Black using nbqa
+        # nbqa will automatically look for the pyproject.toml

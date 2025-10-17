@@ -5,20 +5,21 @@ from scripts import Agent, ModuleLayer
 import os
 import pandas as pd
 import joblib
+
 st.title("Agent")
 
 st.subheader("WRITE PURPOSE FOR THIS APP", divider=True)
 
 # Same feature order names and order as during the data pipeline during model training
-feature_names = ['REPLACE WITH YOUR FEATURE NAMES']
+feature_names = ["REPLACE WITH YOUR FEATURE NAMES"]
 
 # Configuration for the Agent model from original training ('/configs/config.json')
 cfg = {
-    "in_dim": len(feature_names),    # Number of Features as input
-    "intermediate_dim": 128,    
-    "out_dim": 1,   
-    "num_blocks": 12,   # Number of reapeating Layer Blocks
-    "dropout_rate": 0.1     # Rate for dropout layer
+    "in_dim": len(feature_names),  # Number of Features as input
+    "intermediate_dim": 128,
+    "out_dim": 1,
+    "num_blocks": 12,  # Number of reapeating Layer Blocks
+    "dropout_rate": 0.1,  # Rate for dropout layer
 }
 
 
@@ -34,11 +35,11 @@ def convert_inputs(*args) -> list:
             region (str): Region of the individual
     Returns:
         features: A list of converted features ready for model input.
-            """
+    """
     features = []
 
     try:
-        
+
         # age
         age = args[0]
         if not (18 <= age <= 64):
@@ -49,7 +50,7 @@ def convert_inputs(*args) -> list:
         sex = args[1]
         if not isinstance(sex, str):
             raise ValueError("Sex must be a string.")
-        features.append(1.0 if sex.lower() == 'male' else 0.0)
+        features.append(1.0 if sex.lower() == "male" else 0.0)
 
         # bmi
         bmi = args[2]
@@ -57,28 +58,31 @@ def convert_inputs(*args) -> list:
             raise ValueError("BMI out of range.")
         features.append(float(bmi))
 
-
     except Exception as e:
         st.error(f"Error in input conversion: {e}")
 
     return features
 
 
-agent = Agent(cfg)    # Create agent instance
+agent = Agent(cfg)  # Create agent instance
 
-# Dynamically create the path to the model's weights 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__)) # Get directory of current running file
+# Dynamically create the path to the model's weights
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # Get directory of current running file
 
-weights_file = os.path.join(BASE_DIR, "model_weights", "ENTER MODEL WEIGHTS FILE NAME (ex. 'Agent-weights.pt')") # create the full path to the model weights
+weights_file = os.path.join(
+    BASE_DIR, "model_weights", "ENTER MODEL WEIGHTS FILE NAME (ex. 'Agent-weights.pt')"
+)  # create the full path to the model weights
 # Create the full path to the scalers
-features_scaler_file = os.path.join(BASE_DIR, "scalers", "feature-scaler.joblib") 
-label_scaler_file = os.path.join(BASE_DIR, "scalers", "label-scaler.joblib") 
+features_scaler_file = os.path.join(BASE_DIR, "scalers", "feature-scaler.joblib")
+label_scaler_file = os.path.join(BASE_DIR, "scalers", "label-scaler.joblib")
 
-features_scaler = joblib.load(features_scaler_file) # Load feature scaler
-label_scaler = joblib.load(label_scaler_file)     # Load label scaler
+features_scaler = joblib.load(features_scaler_file)  # Load feature scaler
+label_scaler = joblib.load(label_scaler_file)  # Load label scaler
 
 try:
-    agent.load_state_dict(torch.load(weights_file, weights_only=True)) # Load the agent's model weights
+    agent.load_state_dict(
+        torch.load(weights_file, weights_only=True)
+    )  # Load the agent's model weights
 except Exception as e:
     st.error(f"Error loading model weights: {e}")
 
@@ -89,8 +93,9 @@ with st.form("my_form"):
     # User inputs
     age = st.slider("How old are you?", min_value=18, max_value=64, value=32, key="age")
     sex = st.radio("Choose an option", ["Male", "Female"])
-    bmi = st.number_input("What is your BMI?", min_value=15.96, max_value=53.13, value=25.0, key="bmi")
-
+    bmi = st.number_input(
+        "What is your BMI?", min_value=15.96, max_value=53.13, value=25.0, key="bmi"
+    )
 
     # Process the inputs and sample from the model
     submitted = st.form_submit_button("Get Prediction")
@@ -104,8 +109,10 @@ with st.form("my_form"):
         # Transform input tensor
         inputs = features_scaler.transform(input_df)  # Scale the inputs using the pre-fitted scaler
 
-        inputs = torch.tensor(inputs, dtype=torch.float32) # Convert to tensor
+        inputs = torch.tensor(inputs, dtype=torch.float32)  # Convert to tensor
 
         unnormalized_pred = agent.get_prediction(inputs)
-        pred = label_scaler.inverse_transform([[unnormalized_pred]])[0,0]  # Un-normalize the prediction
+        pred = label_scaler.inverse_transform([[unnormalized_pred]])[
+            0, 0
+        ]  # Un-normalize the prediction
         st.success(f"Agent Predicts: **{pred:.2f}**")
