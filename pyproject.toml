@@ -1,0 +1,32 @@
+[tool.black]
+# Black's maximum line length
+line-length = 100 
+
+# By default, Black only includes .py files. 
+# Adding regex to find ipynb files.
+include = '\.pyi?|\.ipynb$'
+
+# You can also exclude files or directories here.
+exclude = '''
+/(
+    \.git
+  | \.gitignore
+  | \.mypy_cache
+  | Data
+  | configs
+  | setup
+  | HuggingFace_Space
+  | README.md
+
+)/
+'''
+
+[tool.nbqa]
+# nbqa will automatically apply Black to code cells.
+# You can use this section to configure *nbqa* specifically.
+# For example, to skip checking certain files for nbqa.
+exclude = '''
+/(
+
+)/
+'''

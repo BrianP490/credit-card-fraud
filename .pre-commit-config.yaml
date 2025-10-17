@@ -1,0 +1,8 @@
+# .pre-commit-config.yaml for Python AND Jupyter Notebooks
+
+repos:
+-   repo: https://github.com/psf/black
+    rev: 24.4.2     # Black Revision
+    hooks:
+    -   id: black-jupyter # For .py and .ipynb files
+    # Automatically looks for the 'pyproject.toml' file for formatting details

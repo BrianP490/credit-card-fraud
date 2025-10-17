@@ -204,3 +204,6 @@ dependencies:
   - yaml=0.2.5
   - zstandard=0.25.0
   - zstd=1.5.7
+  - black
+  - pre-commit
+  - nbqa
