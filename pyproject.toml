@@ -10,12 +10,12 @@ include = '\.pyi?|\.ipynb$'
 exclude = '''
 /(
     \.git
+  | \.vscode
   | \.gitignore
   | \.mypy_cache
-  | Data(/|$) # Excludes 'Data' directory
-  | configs(/|$) # Excludes 'configs' directory
-  | setup(/|$) # Excludes 'setup' directory
-  | HuggingFace_Space(/|$) # Excludes the 'HuggingFace_Space' directory
+  | Data(/|$) # Excludes 'Data' directory for efficiency
+  | configs(/|$) # Excludes 'configs' directory for efficiency
+  | Setup(/|$) # Excludes 'setup' directory for efficiency
   | README\.md$ # Excludes a file named README.md at the root
 )/
 '''
@@ -26,6 +26,14 @@ exclude = '''
 # For example, to skip checking certain files for nbqa.
 exclude = '''
 /(
-
+    \.git
+  | \.vscode
+  | \.gitignore
+  | \.mypy_cache
+  | Data(/|$) # Excludes 'Data' directory for efficiency
+  | configs(/|$) # Excludes 'configs' directory for efficiency
+  | Setup(/|$) # Excludes 'setup' directory for efficiency
+  | HuggingFace_Space(/|$) # Excludes the 'HuggingFace_Space' directory for efficiency
+  | README\.md$ # Excludes a file named README.md at the root
 )/
 '''
