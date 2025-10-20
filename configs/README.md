@@ -10,7 +10,7 @@ Covers the essential data configurations for the Data Pipeline
 
 - `dataset_url`  
   - **Type**: `str`  
-  - **Default**: `PASTE URL HERE`  
+  - **Default**: `hf://datasets/MaxPrestige/credit-card-fraud-CLEAN/credit-card-fraud-CLEAN.csv`  
   - **Description**: URL to the dataset hosted on Hugging Face.
 
 - `root_data_dir`  
@@ -20,7 +20,7 @@ Covers the essential data configurations for the Data Pipeline
 
 - `data_file_path`  
   - **Type**: `str`  
-  - **Default**: `ENTER DATA FILE NAME HERE (ex. 'liquid_gold_data.csv')`  
+  - **Default**: `credit-card-fraud-CLEAN.csv`  
   - **Description**: Filename of the dataset.
 
 - `data_splits_dir`  
@@ -35,12 +35,12 @@ Covers the essential data configurations for the Data Pipeline
 
 - `target_column`  
   - **Type**: `str`  
-  - **Default**: `ENTER TARGET COLUMN NAME HERE (ex. 'Price')`  
+  - **Default**: `is_fraud`  
   - **Description**: Column name to be predicted.
 
 - `extra_dropped_columns`  
   - **Type**: `list`  
-  - **Default**: `["ADD ANY EXTRA COLUMNS THAT NEED TO BE DROPPED HEREate"]`  
+  - **Default**: `[]`  
   - **Description**: List of columns to drop from the dataset.
 
 ## Argparse Parser Defaults
@@ -49,7 +49,7 @@ Used to provide the argparse parser default values and attributes.
 
 - `epochs`  
   - **Type**: `int`  
-  - **Default**: `8`  
+  - **Default**: `9`  
   - **Description**: Number of training epochs to run. Note: Overwritten in ['Simulated Args'](#simulated-args) section during ipynb testing.
 
 - `learning_rate`  
@@ -104,7 +104,7 @@ Used to provide the argparse parser default values and attributes.
 
 - `model_output_path`
   - **Type**: `str`
-  - **Default**: `ENTER MODEL OUTPUT PATH HERE (ex. './Models/liquid_gold_model.pt')`  
+  - **Default**: `trained-model.pt`  
   - **Description**: Path to save the trained model. Note: Overwritten in ['Simulated Args'](#simulated-args) section during ipynb testing.
 
 ## Model
@@ -192,7 +192,7 @@ Used to provide the argparse parser default values and attributes.
 
 - `loss_function`  
   - **Type**: `str`  
-  - **Default**: `mae`  
+  - **Default**: `CrossEntropyLoss`  
   - **Description**: The loss function used for training.
 
 - `early_stopping`  
@@ -254,7 +254,7 @@ Required for ipynb testing simulating possible user input, due to the argparser 
 
 - `--model_output_path`  
   - **Type**: `str`  
-  - **Default**: `ENTER MODEL OUTPUT PATH HERE (ex. './Models/liquid_gold_model.pt')`
+  - **Default**: `my-model.pt`
   - **Description**: Override model output path.
 
 </details>

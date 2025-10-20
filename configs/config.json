@@ -1,12 +1,12 @@
 {
   "data": {
-    "dataset_url": "PASTE URL HERE",
+    "dataset_url": "hf://datasets/MaxPrestige/credit-card-fraud-CLEAN/credit-card-fraud-CLEAN.csv",
     "root_data_dir": "./Data",
-    "data_file_path": "ENTER DATA FILE NAME HERE (ex. 'liquid_gold_data.csv')",
+    "data_file_path": "credit-card-fraud-CLEAN.csv",
     "data_splits_dir": "DataSplits",
     "scaler_dir": "Scalers",
-    "target_column": "ENTER TARGET COLUMN NAME HERE (ex. 'Price')",
-    "dropped_columns": ["ADD ANY EXTRA COLUMNS THAT NEED TO BE DROPPED HERE"]
+    "target_column": "is_fraud",
+    "extra_dropped_columns": []
   }
   ,
   "parser_defaults": {
@@ -21,10 +21,10 @@
     "use_cuda": false,
     "device": "cpu",
     "save_model": false,
-    "model_output_path": "ENTER MODEL OUTPUT PATH HERE (ex. './Models/liquid_gold_model.pt')"
+    "model_output_path": "trained-model.pt"
   },
   "model": {
-    "in_dim": "CHANGE TO NUMBER OF INPUT FEATURES",
+    "in_dim": 9,
     "intermediate_dim": 128,
     "out_dim": 1,
     "num_blocks": 12,
@@ -55,6 +55,6 @@
     "--dataloader_pin_memory": false,
     "--use_cuda": false,
     "--save_model": false,
-    "--model_output_path": "ENTER MODEL OUTPUT PATH HERE (ex. './Models/liquid_gold_model.pt')"
+    "--model_output_path": "my-model.pt"
   }
 }
