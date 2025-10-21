@@ -123,7 +123,7 @@ For the model architecture, such as the number of repeating model blocks.
 
 - `out_dim`  
   - **Type**: `int`  
-  - **Default**: `1`  
+  - **Default**: `2`  
   - **Description**: Output dimension size.
 
 - `num_blocks`  
