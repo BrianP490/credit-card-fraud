@@ -10,32 +10,32 @@ Covers the essential data configurations for the Data Pipeline
 
 - `dataset_url`  
   - **Type**: `str`  
-  - **Default**: `hf://datasets/MaxPrestige/credit-card-fraud-CLEAN/credit-card-fraud-CLEAN.csv`  
+  - **Default**: `"hf://datasets/MaxPrestige/credit-card-fraud-CLEAN/credit-card-fraud-CLEAN.csv"`  
   - **Description**: URL to the dataset hosted on Hugging Face.
 
 - `root_data_dir`  
   - **Type**: `str`  
-  - **Default**: `./Data`  
+  - **Default**: `"./Data"`  
   - **Description**: Root directory where data files are stored.
 
 - `data_file_path`  
   - **Type**: `str`  
-  - **Default**: `credit-card-fraud-CLEAN.csv`  
+  - **Default**: `"credit-card-fraud-CLEAN.csv"`  
   - **Description**: Filename of the dataset.
 
 - `data_splits_dir`  
   - **Type**: `str`  
-  - **Default**: `DataSplits`  
+  - **Default**: `"DataSplits"`  
   - **Description**: Directory containing train/val/test splits.
 
 - `scaler_dir`  
   - **Type**: `str`  
-  - **Default**: `Scalers`  
+  - **Default**: `"Scalers"`  
   - **Description**: Directory to save/load data scalers.
 
 - `target_column`  
   - **Type**: `str`  
-  - **Default**: `is_fraud`  
+  - **Default**: `"is_fraud"`  
   - **Description**: Column name to be predicted.
 
 - `extra_dropped_columns`  
@@ -94,7 +94,7 @@ Used to provide the argparse parser default values and attributes.
 
 - `device`
   - **Type**: `str`  
-  - **Default**: `cpu`  
+  - **Default**: `"cpu"`  
   - **Description**: Device to use for training (e.g., 'cpu', 'cuda:0').
 
 - `save_model`
@@ -104,7 +104,7 @@ Used to provide the argparse parser default values and attributes.
 
 - `model_output_path`
   - **Type**: `str`
-  - **Default**: `trained-model.pt`  
+  - **Default**: `"trained-model.pt"`  
   - **Description**: Path to save the trained model. Note: Overwritten in ['Simulated Args'](#simulated-args) section during ipynb testing.
 
 ## Model
@@ -147,32 +147,32 @@ Used to configure the error/info logging behaviors.
 
 - `log_file`  
   - **Type**: `str`  
-  - **Default**: `logs/app.log`  
+  - **Default**: `"logs/app.log"`  
   - **Description**: Path to the log file.
 
 - `logger_name`  
   - **Type**: `str`  
-  - **Default**: `main`  
+  - **Default**: `"main"`  
   - **Description**: Name of the logger instance.
 
 - `log_level`  
   - **Type**: `str`  
-  - **Default**: `INFO`  
+  - **Default**: `"INFO"`  
   - **Description**: Logging level (e.g., INFO, DEBUG).
 
 - `log_mode`  
   - **Type**: `str`  
-  - **Default**: `w`  
+  - **Default**: `"w"`  
   - **Description**: File mode for logging (e.g., 'w' for overwrite, 'a' for appending).
 
 - `log_format`  
   - **Type**: `str`  
-  - **Default**: `%(asctime)s - %(name)s - %(levelname)s - %(message)s`  
+  - **Default**: `"%(asctime)s - %(name)s - %(levelname)s - %(message)s"`  
   - **Description**: Format of the logging method in the logger.
 
 - `date_format`  
   - **Type**: `str`  
-  - **Default**: `%Y-%m-%d %H:%M:%S`  
+  - **Default**: `"%Y-%m-%d %H:%M:%S"`  
   - **Description**: Date and Time format of the log messages.
 
 - `log_to_console`  
@@ -187,12 +187,12 @@ Used to provide the argparse parser default values and attributes.
 
 - `optimizer`  
   - **Type**: `str`  
-  - **Default**: `adamw`  
+  - **Default**: `"adamw"`  
   - **Description**: The optimizer used for training.
 
 - `loss_function`  
   - **Type**: `str`  
-  - **Default**: `CrossEntropyLoss`  
+  - **Default**: `"CrossEntropyLoss"`  
   - **Description**: The loss function used for training.
 
 - `early_stopping`  
@@ -207,7 +207,7 @@ Used to provide the argparse parser default values and attributes.
 
 - `checkpoint_dir`  
   - **Type**: `str`  
-  - **Default**: `./checkpoints`  
+  - **Default**: `"./checkpoints"`  
   - **Description**: Directory to store the checkpoints.
 
 
@@ -219,22 +219,22 @@ Required for ipynb testing simulating possible user input, due to the argparser 
 
 - `--epochs`  
   - **Type**: `str`  
-  - **Default**: `1`  
+  - **Default**: `"1"`  
   - **Description**: Override number of epochs for simulation.
 
 - `--learning_rate`  
   - **Type**: `str`  
-  - **Default**: `0.003`  
+  - **Default**: `"0.003"`  
   - **Description**: Override learning rate for simulation.
 
 - `--log_iterations`  
   - **Type**: `str`  
-  - **Default**: `256`  
+  - **Default**: `"256"`  
   - **Description**: Override log frequency for simulation.
 
 - `--eval_iterations`  
   - **Type**: `str`  
-  - **Default**: `64`  
+  - **Default**: `"64"`  
   - **Description**: Override evaluation frequency for simulation.
 
 - `--dataloader_pin_memory`  
@@ -254,7 +254,7 @@ Required for ipynb testing simulating possible user input, due to the argparser 
 
 - `--model_output_path`  
   - **Type**: `str`  
-  - **Default**: `my-model.pt`
+  - **Default**: `"my-model.pt"`
   - **Description**: Override model output path.
 
 </details>

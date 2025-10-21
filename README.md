@@ -34,7 +34,7 @@ You can customize the behavior of the training script by providing the following
 
     - Type: int
 
-    - Default: 8
+    - Default: `8`
 
     - Description: Number of training epochs to run.
 
@@ -42,7 +42,7 @@ You can customize the behavior of the training script by providing the following
 
     - Type: float
 
-    - Default: 0.0003
+    - Default: `0.0003`
 
     - Description: Learning rate used by the optimizer.
 
@@ -50,7 +50,7 @@ You can customize the behavior of the training script by providing the following
 
     - Type: float
 
-    - Default: 3.0
+    - Default: `3.0`
 
     - Description: The Maximum L2 Norm of the gradients for Gradient Clipping.
 
@@ -58,7 +58,7 @@ You can customize the behavior of the training script by providing the following
 
     - Type: int
 
-    - Default: 64
+    - Default: `64`
 
     - Description: Batch size used by the dataloaders for training, validation, and testing.
 
@@ -66,7 +66,7 @@ You can customize the behavior of the training script by providing the following
 
     - Type: action='store_true' (boolean flag)
 
-    - Default: false (if flag is not present)
+    - Default: `false (if flag is not present)`
 
     - Description: Toggle pinned memory in dataloaders (disabled by default). Include this flag to enable it.
 
@@ -74,7 +74,7 @@ You can customize the behavior of the training script by providing the following
 
     - Type: int
 
-    - Default: 0
+    - Default: `0`
 
     - Description: Number of subprocesses to use for data loading.
 
@@ -82,7 +82,7 @@ You can customize the behavior of the training script by providing the following
 
     - Type: int
 
-    - Default: 2
+    - Default: `2`
 
     - Description: Frequency (in iterations) to log training progress.
 
@@ -90,7 +90,7 @@ You can customize the behavior of the training script by providing the following
 
     - Type: int
 
-    - Default: 2
+    - Default: `2`
 
     - Description: Frequency (in iterations) to evaluate the model.
 
@@ -98,7 +98,7 @@ You can customize the behavior of the training script by providing the following
 
     - Type: action='store_true' (boolean flag)
 
-    - Default: false (if flag is not present)
+    - Default: `false (if flag is not present)`
 
     - Description: Toggle CUDA for training if available. Include this flag to enable CUDA.
 
@@ -106,7 +106,7 @@ You can customize the behavior of the training script by providing the following
 
     - Type: str
 
-    - Default: "cpu"
+    - Default: `"cpu"`
 
     - Description: Device to use for training (e.g., "cpu", "cuda:0"). This parameter overrides the --use_cuda flag if specified.
 
@@ -114,7 +114,7 @@ You can customize the behavior of the training script by providing the following
 
     - Type: action='store_true' (boolean flag)
 
-    - Default: false (if flag is not present)
+    - Default: `false (if flag is not present)`
 
     - Description: Toggle saving the trained model after training. Include this flag to enable model saving.
 
@@ -122,7 +122,7 @@ You can customize the behavior of the training script by providing the following
 
     - Type: str
 
-    - Default: "./models/trained-model.pt"
+    - Default: `"./models/trained-model.pt"`
 
     - Description: File path to save the trained model. Parent directories will be created if they do not exist.
 
@@ -144,6 +144,8 @@ You can customize the behavior of the training script by providing the following
 
 ## Folder Directory
 
+ * Created using [githubtree](https://github.com/rescenic/githubtree)
+ 
 ```bash
 # credit-card-fraud
 
@@ -152,4 +154,3 @@ setup/
 .gitignore
 README.md
 ```
- * Created using [githubtree](https://github.com/rescenic/githubtree)
