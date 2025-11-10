@@ -1,167 +1,210 @@
+"""This Module is the main entry point for the Streamlit application."""
+
 # main.py
-import torch
-import streamlit as st
-from scripts import Agent, ModuleLayer
-import os
+import sys
+import json
 import pandas as pd
+import torch
 import joblib
+import streamlit as st
+from scripts import (
+    Agent,
+    convert_inputs,
+    MODEL_WEIGHTS_FULL_PATH,
+    CONFIG_PATH,
+    FEATURE_SCALER_PATH,
+    FEATURE_NAMES,
+)
 
-st.title("Agent")
+# Main Loop
+# Call this function, during script execution; Main script entry point
+if __name__ == "__main__":
+    st.title("Agent")
+    st.subheader("Check For Credit Card Fraud", divider=True)
 
-st.subheader("Check For Credit Card Fraud", divider=True)
+    # Load model weights
+    try:
+        model_weights = torch.load(MODEL_WEIGHTS_FULL_PATH, weights_only=True)
+        print(f"✅ Model weights loaded successfully from {MODEL_WEIGHTS_FULL_PATH}")
+    except FileNotFoundError:
+        print(
+            f"❌ Model Weights file not found at '{MODEL_WEIGHTS_FULL_PATH}'. "
+            ""
+            "Please ensure the file exists or fix path to file."
+        )
+        sys.exit(1)
 
-# Same feature order names and order as during the data pipeline during model training
-feature_names = [
-    "category",
-    "amt",
-    "gender",
-    "state",
-    "lat",
-    "long",
-    "city_pop",
-    "merch_lat,merch_long",
-]
+    # Load configuration file
+    try:
+        with open(CONFIG_PATH, "r", encoding="utf-8") as f:
+            config = json.load(f)
+    except FileNotFoundError:
+        print(
+            f"❌ Configuration file not found at '{CONFIG_PATH}'. "
+            "Please ensure the file exists or fix path to file."
+        )
+        sys.exit(1)
+    except json.JSONDecodeError as e:
+        print(f"❌ Failed to parse JSON: {e}")
+        sys.exit(1)
 
-# Configuration for the Agent model from original training ('/configs/config.json')
-cfg = {
-    "in_dim": len(feature_names),  # Number of Features as input
-    "intermediate_dim": 128,
-    "out_dim": 2,
-    "num_blocks": 12,  # Number of reapeating Layer Blocks
-    "dropout_rate": 0.1,  # Rate for dropout layer
-}
+    # Load feature scaler
+    try:
+        feature_scaler = joblib.load(FEATURE_SCALER_PATH)
+        print(f"✅ Feature Scaler loaded successfully from {FEATURE_SCALER_PATH}")
+    except FileNotFoundError:
+        print(
+            f"❌ Configuration file not found at '{FEATURE_SCALER_PATH}'. "
+            "Please ensure the file exists or fix path to file."
+        )
+        sys.exit(1)
 
-
-def convert_inputs(*args) -> list:
-    """Convert user inputs into a list of features for the model.
-    Args:
-        *args: Variable length argument list containing user inputs in the following order:
-            category (tbd): Category of the transaction (acceptability tbd).
-            amt (tbd): Amount of the transaction (tbd).
-            gender (tbd): Gender of the card owner (tbd).
-            state (tbd): State of the card owner (tbd).
-            lat (tbd): Lattitude of the card owner's home (tbd).
-            long (tbd): Longitude of the card owner's home (tbd).
-            city_pop (tbd): City population of the card owner (tbd).
-            merch_lat (tbd): Lattitude of the merchant (tbd).
-            merch_long (tbd): Longitude of the merchant (tbd).
-    Returns:
-        features: A list of converted features ready for model input.
-    """
-    features = []
+    label_scaler = None
+    MODEL_CONFIG = config.get("model", {})
 
     try:
+        agent = Agent(cfg=MODEL_CONFIG)  # Create agent instance
+        agent.load_state_dict(state_dict=model_weights)
+    except RuntimeError as e:
+        print(f"❌ A runtime error occurred while creating model or loading model weights: {e}")
+        sys.exit(1)
+    except FileNotFoundError as e:
+        print(f"❌ Model weights file not found: {e}")
+        sys.exit(1)
+    except KeyError as e:
+        print(f"❌ Missing key in model configuration: {e}")
+        sys.exit(1)
 
-        # category
-        category = args[0]
-        if not (0 <= category <= 13):
-            raise ValueError("category out of range.")
-        features.append(float(category))
+    agent.eval().to("cpu")
 
-        # amt
-        amt = args[1]
-        if not (0 <= amt <= 30, 000):
-            raise ValueError("amt out of range.")
-        features.append(float(amt))
+    with st.form("my_form"):
+        user_inputs = []
 
-        # gender
-        gender = args[2]
-        if not isinstance(gender, str):
-            raise ValueError("gender must be a string.")
-        features.append(1.0 if gender.lower() == "male" else 0.0)
+        st.write("Please provide the following information:")
+        # User inputs
+        category = st.selectbox(
+            "What is the category of the transaction?",
+            (
+                "entertainment",
+                "food_dining",
+                "gas_transport",
+                "grocery_net",
+                "grocery_pos",
+                "health_fitness",
+                "home",
+                "kids_pets",
+                "misc_net",
+                "misc_pos",
+                "personal_care",
+                "shopping_net",
+                "shopping_pos",
+                "travel",
+            ),
+        )
+        user_inputs.append(category)
 
-        # state
-        state = args[0]
-        if not isinstance(state, str):
-            raise ValueError("state must be a string.")
-        features.append(None)  # TBD; need to use a dictonary to convert to float
+        amt = st.number_input(
+            "What is the amount of the transaction?",
+            min_value=1.0,
+            max_value=30_000.00,
+            value=25.0,
+            key="amt",
+        )
+        user_inputs.append(amt)
 
-        # lat
-        lat = args[1]
-        if not isinstance(lat, float):
-            raise ValueError("lat must be a float.")
-        features.append(lat)
+        gender = st.radio("Choose an option", ["M", "F"])
+        user_inputs.append(gender)
 
-        # long
-        long = args[2]
-        if not isinstance(long, float):
-            raise ValueError("long must be a float.")
-        features.append(long)
+        state = st.selectbox(
+            "From what State is the Card Owner from?",
+            (
+                "AK",
+                "AL",
+                "AR",
+                "AZ",
+                "CA",
+                "CO",
+                "CT",
+                "DC",
+                "DE",
+                "FL",
+                "GA",
+                "HI",
+                "IA",
+                "ID",
+                "IL",
+                "IN",
+                "KS",
+                "KY",
+                "LA",
+                "MA",
+                "MD",
+                "ME",
+                "MI",
+                "MN",
+                "MO",
+                "MS",
+                "MT",
+                "NC",
+                "ND",
+                "NE",
+                "NH",
+                "NJ",
+                "NM",
+                "NV",
+                "NY",
+                "OH",
+                "OK",
+                "OR",
+                "PA",
+                "RI",
+                "SC",
+                "SD",
+                "TN",
+                "TX",
+                "UT",
+                "VA",
+                "VT",
+                "WA",
+                "WI",
+                "WV",
+                "WY",
+            ),
+        )
+        user_inputs.append(state)
 
-        # city_pop
-        city_pop = args[0]
-        if not (1 <= city_pop <= 3_000_000):
-            raise ValueError("city_pop out of range.")
-        features.append(float(city_pop))
+        # Some links for data validation: https://www.baeldung.com/java-geo-coordinates-validation
+        lat = st.slider(min_value=-90.0, max_value=90.0, value=20.0, step=0.01)
+        user_inputs.append(lat)
 
-        # merch_lat
-        merch_lat = args[1]
-        if not isinstance(merch_lat, float):
-            raise ValueError("merch_lat must be a float.")
-        features.append(merch_lat)
+        long = st.slider(min_value=-180.0, max_value=180.0, value=-165.0, step=0.01)
+        user_inputs.append(long)
 
-        # merch_long
-        merch_long = args[2]
-        if not isinstance(merch_long, float):
-            raise ValueError("merch_long must be a float.")
-        features.append(merch_long)
-    except Exception as e:
-        st.error(f"Error in input conversion: {e}")
+        city_pop = st.slider(min_value=23.0, max_value=2_906_700.0, value=40_000.0, step=0.01)
+        user_inputs.append(city_pop)
 
-    return features
+        merch_lat = st.slider(min_value=-90.0, max_value=90.0, value=20.0, step=1.0)
+        user_inputs.append(merch_lat)
 
+        merch_long = st.slider(min_value=-180.0, max_value=180.0, value=-165.0, step=0.01)
+        user_inputs.append(merch_long)
 
-agent = Agent(cfg)  # Create agent instance
+        # Process the inputs and sample from the model
+        submitted = st.form_submit_button("Get Prediction")
+        if submitted:
+            # Convert inputs to the correct format using the expansion operator
+            converted_inputs = convert_inputs(*user_inputs)
 
-# Dynamically create the path to the model's weights
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # Get directory of current running file
+            # Create a DataFrame for the scaler using the feature names to prevent warnings
+            input_df = pd.DataFrame([converted_inputs], columns=FEATURE_NAMES)
 
-weights_file = os.path.join(
-    BASE_DIR, "model_weights", "my-model.pt"
-)  # create the full path to the model weights
-# Create the full path to the scalers
-features_scaler_file = os.path.join(BASE_DIR, "scalers", "feature-scaler.joblib")
-label_scaler_file = os.path.join(BASE_DIR, "scalers", "label-scaler.joblib")
+            # Transform input tensor by scaling the inputs using the pre-fitted scaler
+            inputs = feature_scaler.transform(input_df)
 
-features_scaler = joblib.load(features_scaler_file)  # Load feature scaler
-# label_scaler = joblib.load(label_scaler_file)  # Load label scaler
-label_scaler = None
+            inputs = torch.tensor(inputs, dtype=torch.float32)  # Convert to tensor
 
-
-try:
-    agent.load_state_dict(
-        torch.load(weights_file, weights_only=True)
-    )  # Load the agent's model weights
-except Exception as e:
-    st.error(f"Error loading model weights: {e}")
-
-
-with st.form("my_form"):
-    st.write("Please provide the following information:")
-
-    # User inputs
-    age = st.slider("How old are you?", min_value=18, max_value=64, value=32, key="age")
-    gender = st.radio("Choose an option", ["Male", "Female"])
-    bmi = st.number_input(
-        "What is your BMI?", min_value=15.96, max_value=53.13, value=25.0, key="bmi"
-    )
-
-    # Process the inputs and sample from the model
-    submitted = st.form_submit_button("Get Prediction")
-    if submitted:
-        # Create a list of features from the user's inputs
-        converted_inputs = convert_inputs(age, sex, bmi)
-
-        # Create a DataFrame for the scaler using the feature names to prevent warnings
-        input_df = pd.DataFrame([converted_inputs], columns=feature_names)
-
-        # Transform input tensor
-        inputs = features_scaler.transform(input_df)  # Scale the inputs using the pre-fitted scaler
-
-        inputs = torch.tensor(inputs, dtype=torch.float32)  # Convert to tensor
-
-        unnormalized_pred = agent.get_prediction(inputs)
-        pred = label_scaler.inverse_transform([[unnormalized_pred]])[
-            0, 0
-        ]  # Un-normalize the prediction
-        st.success(f"Agent Predicts: **{pred:.2f}**")
+            unnormalized_pred = agent.get_prediction(inputs)
+            pred = label_scaler.inverse_transform([[unnormalized_pred]])[
+                0, 0
+            ]  # Un-normalize the prediction
+            st.success(f"Agent Predicts: **{pred:.2f}**")
