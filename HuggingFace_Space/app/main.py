@@ -1,19 +1,15 @@
 """This Module is the main entry point for the Streamlit application."""
 
 # main.py
-import sys
-import json
 import pandas as pd
 import torch
-import joblib
 import streamlit as st
 from scripts import (
-    Agent,
     convert_inputs,
-    MODEL_WEIGHTS_FULL_PATH,
-    CONFIG_PATH,
-    FEATURE_SCALER_PATH,
     FEATURE_NAMES,
+    load_model,
+    load_feature_scaler,
+    load_label_scaler,
 )
 
 # Main Loop
@@ -22,60 +18,10 @@ if __name__ == "__main__":
     st.title("Agent")
     st.subheader("Check For Credit Card Fraud", divider=True)
 
-    # Load model weights
-    try:
-        model_weights = torch.load(MODEL_WEIGHTS_FULL_PATH, weights_only=True)
-        print(f"✅ Model weights loaded successfully from {MODEL_WEIGHTS_FULL_PATH}")
-    except FileNotFoundError:
-        print(
-            f"❌ Model Weights file not found at '{MODEL_WEIGHTS_FULL_PATH}'. "
-            ""
-            "Please ensure the file exists or fix path to file."
-        )
-        sys.exit(1)
+    feature_scaler = load_feature_scaler()
+    label_scaler = load_label_scaler()
 
-    # Load configuration file
-    try:
-        with open(CONFIG_PATH, "r", encoding="utf-8") as f:
-            config = json.load(f)
-    except FileNotFoundError:
-        print(
-            f"❌ Configuration file not found at '{CONFIG_PATH}'. "
-            "Please ensure the file exists or fix path to file."
-        )
-        sys.exit(1)
-    except json.JSONDecodeError as e:
-        print(f"❌ Failed to parse JSON: {e}")
-        sys.exit(1)
-
-    # Load feature scaler
-    try:
-        feature_scaler = joblib.load(FEATURE_SCALER_PATH)
-        print(f"✅ Feature Scaler loaded successfully from {FEATURE_SCALER_PATH}")
-    except FileNotFoundError:
-        print(
-            f"❌ Configuration file not found at '{FEATURE_SCALER_PATH}'. "
-            "Please ensure the file exists or fix path to file."
-        )
-        sys.exit(1)
-
-    label_scaler = None
-    MODEL_CONFIG = config.get("model", {})
-
-    try:
-        agent = Agent(cfg=MODEL_CONFIG)  # Create agent instance
-        agent.load_state_dict(state_dict=model_weights)
-    except RuntimeError as e:
-        print(f"❌ A runtime error occurred while creating model or loading model weights: {e}")
-        sys.exit(1)
-    except FileNotFoundError as e:
-        print(f"❌ Model weights file not found: {e}")
-        sys.exit(1)
-    except KeyError as e:
-        print(f"❌ Missing key in model configuration: {e}")
-        sys.exit(1)
-
-    agent.eval().to("cpu")
+    agent = load_model()
 
     with st.form("my_form"):
         user_inputs = []

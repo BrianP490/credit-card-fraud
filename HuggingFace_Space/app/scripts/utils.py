@@ -117,19 +117,96 @@ def convert_inputs(*args) -> list:
 
 @st.cache_data
 def load_config():
-    with open(CONFIG_PATH, "r", encoding="utf-8") as f:
-        return json.load(f)
+    """Loads configuration file using global variable. Optimized using streamlit caching.
+    Args:
+        N/A
+    Returns:
+        config (dict): the python dictionary containing configuration data
+    """
+    try:
+        with open(CONFIG_PATH, "r", encoding="utf-8") as f:
+            config = json.load(f)
+    except FileNotFoundError:
+        message = f"❌ Configuration file not found at '{CONFIG_PATH}'. \nPlease ensure the file exists or fix path to file."
+        log_and_stop(message)
+    except json.JSONDecodeError as e:
+        message = f"❌ Failed to parse JSON: {e}"
+        log_and_stop(message)
+
+    return config
 
 
 @st.cache_resource
 def load_model():
-    model_weights = torch.load(MODEL_WEIGHTS_FULL_PATH, weights_only=True)
-    MODEL_CONFIG = load_config()
-    agent = Agent(cfg=MODEL_CONFIG)
-    agent.load_state_dict(model_weights)
+    """Helper function that loads the model's architecture and instantiates a model with its trained weights. Returns agent to cpu in evaluation mode. Optimized using streamlit caching.
+    Args:
+        N/A
+    Returns:
+        Agent (torch.nn.Module)
+    """
+    try:
+        model_weights = torch.load(MODEL_WEIGHTS_FULL_PATH, weights_only=True)
+        print(f"✅ Model weights loaded successfully from {MODEL_WEIGHTS_FULL_PATH}")
+    except FileNotFoundError:
+        message = f"❌ Model Weights file not found at '{MODEL_WEIGHTS_FULL_PATH}'. \nPlease ensure the file exists."
+        log_and_stop(message)
+
+    CONFIG = load_config()
+    MODEL_CONFIG = CONFIG.get("model", {})
+
+    try:
+        agent = Agent(cfg=MODEL_CONFIG)  # Create agent instance
+        agent.load_state_dict(state_dict=model_weights)
+    except RuntimeError as e:
+        message = f"❌ A runtime error occurred while creating model or loading model weights: {e}"
+        log_and_stop(message)
+    except FileNotFoundError as e:
+        message = f"❌ Model weights file not found: {e}"
+        log_and_stop(message)
+    except KeyError as e:
+        message = f"❌ Missing key in model configuration: {e}"
+        log_and_stop(message)
+
     return agent.eval().to("cpu")
 
 
 @st.cache_data
-def load_scaler():
-    return joblib.load(FEATURE_SCALER_PATH)
+def load_feature_scaler():
+    """Loads the feature scaler using the global variable. Optimized using streamlit caching.
+    Args:
+        N/A
+    Returns:
+        feature_scaler: the loaded scalert object"""
+    # Load feature scaler
+    try:
+        feature_scaler = joblib.load(FEATURE_SCALER_PATH)
+        print(f"✅ Feature Scaler loaded successfully from {FEATURE_SCALER_PATH}")
+    except FileNotFoundError:
+        message = f"❌ Configuration file not found at '{FEATURE_SCALER_PATH}'. \nPlease ensure the file exists or fix path to file."
+        log_and_stop(message)
+    return feature_scaler
+
+
+@st.cache_data
+def load_label_scaler():
+    """Loads the label scaler using the global variable. Optimized using streamlit caching.
+    Args:
+        N/A
+    Returns:
+        label_scaler: the loaded scalert object"""
+    # Not used in this implementation
+    label_scaler = None
+
+    return label_scaler
+
+
+def log_and_stop(message: str):
+    """Helper function to log to terminal. Shows message to Streamlit UI and exits the program.Args:
+        NN/Ane
+    Returns:
+        N/A
+    """
+
+    print(message)  # Console
+    st.error(message)  # Streamlit UI
+    st.stop()  # Stops Streamlit app
