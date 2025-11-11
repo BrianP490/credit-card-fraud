@@ -14,7 +14,7 @@ CONFIG_DIRECTORY = "./configs"
 CONFIG_FILE_NAME = "config.json"
 CONFIG_PATH = BASE_DIR / CONFIG_DIRECTORY / CONFIG_FILE_NAME
 
-SCALER_DIRECTORY = "./scalers"
+SCALER_DIRECTORY = "./Scalers"
 FEATURE_SCALER_FILE_NAME = "feature-scaler.joblib"
 FEATURE_SCALER_PATH = BASE_DIR / SCALER_DIRECTORY / FEATURE_SCALER_FILE_NAME
 
@@ -28,7 +28,8 @@ FEATURE_NAMES = [
     "lat",
     "long",
     "city_pop",
-    "merch_lat,merch_long",
+    "merch_lat",
+    "merch_long",
 ]
 
 CATEGORY_MAPPING = {

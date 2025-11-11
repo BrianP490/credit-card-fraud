@@ -1,13 +1,20 @@
 """This module contains utility functions for input conversion and validation."""
 
+import json
+import joblib
 import streamlit as st
+import torch
 
-# from scripts import (
-#     FEATURE_NAMES,
-#     CATEGORY_MAPPING,
-#     GENDER_MAPPING,
-#     STATE_MAPPING
-# )
+from .consts import (
+    FEATURE_NAMES,
+    CATEGORY_MAPPING,
+    GENDER_MAPPING,
+    STATE_MAPPING,
+    MODEL_WEIGHTS_FULL_PATH,
+    CONFIG_PATH,
+    FEATURE_SCALER_PATH,
+)
+from .model import Agent
 
 
 def convert_inputs(*args) -> list:
@@ -33,8 +40,10 @@ def convert_inputs(*args) -> list:
         category = args[0]
         if not isinstance(category, str):
             raise ValueError("category must be a string.")
+
         category = CATEGORY_MAPPING.get(category, None)
-        if category:
+
+        if category is not None:
             features.append(category)
 
         # amt
@@ -47,16 +56,20 @@ def convert_inputs(*args) -> list:
         gender = args[2]
         if not isinstance(gender, str):
             raise ValueError("gender must be a string.")
+
         gender = GENDER_MAPPING.get(gender, None)
-        if gender:
+
+        if gender is not None:
             features.append(gender)
 
         # state
         state = args[3]
         if not isinstance(state, str):
             raise ValueError("state must be a string.")
+
         state = STATE_MAPPING.get(state, None)
-        if state:
+
+        if state is not None:
             features.append(state)
 
         # lat
@@ -84,7 +97,7 @@ def convert_inputs(*args) -> list:
         features.append(merch_lat)
 
         # merch_long
-        merch_long = args[2]
+        merch_long = args[8]
         if not isinstance(merch_long, float):
             raise ValueError("merch_long must be a float.")
         features.append(merch_long)
@@ -100,3 +113,23 @@ def convert_inputs(*args) -> list:
         st.error(f"Value error in input conversion: {e}")
 
     return features
+
+
+@st.cache_data
+def load_config():
+    with open(CONFIG_PATH, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+@st.cache_resource
+def load_model():
+    model_weights = torch.load(MODEL_WEIGHTS_FULL_PATH, weights_only=True)
+    MODEL_CONFIG = load_config()
+    agent = Agent(cfg=MODEL_CONFIG)
+    agent.load_state_dict(model_weights)
+    return agent.eval().to("cpu")
+
+
+@st.cache_data
+def load_scaler():
+    return joblib.load(FEATURE_SCALER_PATH)

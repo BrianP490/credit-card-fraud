@@ -76,13 +76,12 @@ class Agent(torch.nn.Module):
             `(num_features,)` for a single observation
             or `(batch_size, num_features)` for a batch of observations.
         Returns:
-            action (int or torch.tensor):
+            prediction_probs (torch.tensor):
                 - If `features` is a single features (i.e., `features.dim() == 1`), returns a
-                scalar `int` representing the chosen action.
+                1-d tensor of the model's probabilities for each decision.
 
                 - If `features` is a batch of features (i.e., `features.dim() > 1`),
-                returns a `torch.Tensor` of `int`s, where each element is the
-                chosen action for the corresponding observation in the batch
+                returns a 2-d tensor, of the model's probabilities for each decision, for the corresponding observation in the batch
         """
         # Ensure single samples have a batch dimension
         if features.dim() == 1:
@@ -92,6 +91,6 @@ class Agent(torch.nn.Module):
             if not isinstance(features, torch.Tensor):  # Check if features is not already a tensor
                 features = torch.tensor(features, dtype=torch.float)
             prediction = self.forward(features)  # Run a forward pass through the model
-        if features.size(0) == 1:  # This method checks if there is only 1 element in a 1D tensor
-            return prediction.item()  # Returns a Python scalar for a single observation
+        # if features.size(0) == 1:  # This method checks if there is only 1 element in a 1D tensor
+        #     return prediction.item()  # Returns a Python scalar for a single observation
         return prediction  # Returns a tensor of predictions

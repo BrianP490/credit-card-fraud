@@ -174,19 +174,49 @@ if __name__ == "__main__":
         user_inputs.append(state)
 
         # Some links for data validation: https://www.baeldung.com/java-geo-coordinates-validation
-        lat = st.slider(min_value=-90.0, max_value=90.0, value=20.0, step=0.01)
+        lat = st.slider(
+            label="Enter the lattitude of the card owner",
+            min_value=-90.0,
+            max_value=90.0,
+            value=20.0,
+            step=0.01,
+        )
         user_inputs.append(lat)
 
-        long = st.slider(min_value=-180.0, max_value=180.0, value=-165.0, step=0.01)
+        long = st.slider(
+            label="Enter the longitude of the card owner",
+            min_value=-180.0,
+            max_value=180.0,
+            value=-165.0,
+            step=0.01,
+        )
         user_inputs.append(long)
 
-        city_pop = st.slider(min_value=23.0, max_value=2_906_700.0, value=40_000.0, step=0.01)
+        city_pop = st.slider(
+            label="Enter the city population of the card owner",
+            min_value=23.0,
+            max_value=2_906_700.0,
+            value=40_000.0,
+            step=1.0,
+        )
         user_inputs.append(city_pop)
 
-        merch_lat = st.slider(min_value=-90.0, max_value=90.0, value=20.0, step=1.0)
+        merch_lat = st.slider(
+            label="Enter the lattitude of the store/vendor/purchase",
+            min_value=-90.0,
+            max_value=90.0,
+            value=20.0,
+            step=1.0,
+        )
         user_inputs.append(merch_lat)
 
-        merch_long = st.slider(min_value=-180.0, max_value=180.0, value=-165.0, step=0.01)
+        merch_long = st.slider(
+            label="Enter the longitude of the store/vendor/purchase",
+            min_value=-180.0,
+            max_value=180.0,
+            value=-165.0,
+            step=0.01,
+        )
         user_inputs.append(merch_long)
 
         # Process the inputs and sample from the model
@@ -204,7 +234,18 @@ if __name__ == "__main__":
             inputs = torch.tensor(inputs, dtype=torch.float32)  # Convert to tensor
 
             unnormalized_pred = agent.get_prediction(inputs)
-            pred = label_scaler.inverse_transform([[unnormalized_pred]])[
-                0, 0
-            ]  # Un-normalize the prediction
-            st.success(f"Agent Predicts: **{pred:.2f}**")
+
+            prediction_index = torch.argmax(unnormalized_pred)
+            prediction_label = (
+                "FRAUD" if prediction_index == 1 else "NOT FRAUD"
+            )  # Map the prediction index to a label
+
+            st.write("---")  # Separator
+
+            # --- Streamlit Output ---
+            st.subheader("Classification Result:")
+
+            if prediction_label == "FRAUD":
+                st.error(f"Prediction: {prediction_label} 🚨")  # Red for alert
+            else:
+                st.success(f"Prediction: {prediction_label} ✅")
