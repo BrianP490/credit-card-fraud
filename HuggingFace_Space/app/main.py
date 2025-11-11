@@ -24,152 +24,103 @@ if __name__ == "__main__":
     agent = load_model()
 
     with st.form("my_form"):
-        user_inputs = []
+
+        categories = (
+            "entertainment",
+            "food_dining",
+            "gas_transport",
+            "grocery_net",
+            "grocery_pos",
+            "health_fitness",
+            "home",
+            "kids_pets",
+            "misc_net",
+            "misc_pos",
+            "personal_care",
+            "shopping_net",
+            "shopping_pos",
+            "travel",
+        )
+        states = (
+            "AK",
+            "AL",
+            "AR",
+            "AZ",
+            "CA",
+            "CO",
+            "CT",
+            "DC",
+            "DE",
+            "FL",
+            "GA",
+            "HI",
+            "IA",
+            "ID",
+            "IL",
+            "IN",
+            "KS",
+            "KY",
+            "LA",
+            "MA",
+            "MD",
+            "ME",
+            "MI",
+            "MN",
+            "MO",
+            "MS",
+            "MT",
+            "NC",
+            "ND",
+            "NE",
+            "NH",
+            "NJ",
+            "NM",
+            "NV",
+            "NY",
+            "OH",
+            "OK",
+            "OR",
+            "PA",
+            "RI",
+            "SC",
+            "SD",
+            "TN",
+            "TX",
+            "UT",
+            "VA",
+            "VT",
+            "WA",
+            "WI",
+            "WV",
+            "WY",
+        )
 
         st.write("Please provide the following information:")
-        # User inputs
-        category = st.selectbox(
-            "What is the category of the transaction?",
-            (
-                "entertainment",
-                "food_dining",
-                "gas_transport",
-                "grocery_net",
-                "grocery_pos",
-                "health_fitness",
-                "home",
-                "kids_pets",
-                "misc_net",
-                "misc_pos",
-                "personal_care",
-                "shopping_net",
-                "shopping_pos",
-                "travel",
-            ),
-        )
-        user_inputs.append(category)
-
-        amt = st.number_input(
-            "What is the amount of the transaction?",
-            min_value=1.0,
-            max_value=30_000.00,
-            value=25.0,
-            key="amt",
-        )
-        user_inputs.append(amt)
-
-        gender = st.radio("Choose an option", ["M", "F"])
-        user_inputs.append(gender)
-
-        state = st.selectbox(
-            "From what State is the Card Owner from?",
-            (
-                "AK",
-                "AL",
-                "AR",
-                "AZ",
-                "CA",
-                "CO",
-                "CT",
-                "DC",
-                "DE",
-                "FL",
-                "GA",
-                "HI",
-                "IA",
-                "ID",
-                "IL",
-                "IN",
-                "KS",
-                "KY",
-                "LA",
-                "MA",
-                "MD",
-                "ME",
-                "MI",
-                "MN",
-                "MO",
-                "MS",
-                "MT",
-                "NC",
-                "ND",
-                "NE",
-                "NH",
-                "NJ",
-                "NM",
-                "NV",
-                "NY",
-                "OH",
-                "OK",
-                "OR",
-                "PA",
-                "RI",
-                "SC",
-                "SD",
-                "TN",
-                "TX",
-                "UT",
-                "VA",
-                "VT",
-                "WA",
-                "WI",
-                "WV",
-                "WY",
-            ),
-        )
-        user_inputs.append(state)
 
         # Some links for data validation: https://www.baeldung.com/java-geo-coordinates-validation
-        lat = st.slider(
-            label="Enter the lattitude of the card owner",
-            min_value=-90.0,
-            max_value=90.0,
-            value=20.0,
-            step=0.01,
-        )
-        user_inputs.append(lat)
-
-        long = st.slider(
-            label="Enter the longitude of the card owner",
-            min_value=-180.0,
-            max_value=180.0,
-            value=-165.0,
-            step=0.01,
-        )
-        user_inputs.append(long)
-
-        city_pop = st.slider(
-            label="Enter the city population of the card owner",
-            min_value=23.0,
-            max_value=2_906_700.0,
-            value=40_000.0,
-            step=1.0,
-        )
-        user_inputs.append(city_pop)
-
-        merch_lat = st.slider(
-            label="Enter the lattitude of the store/vendor/purchase",
-            min_value=-90.0,
-            max_value=90.0,
-            value=20.0,
-            step=1.0,
-        )
-        user_inputs.append(merch_lat)
-
-        merch_long = st.slider(
-            label="Enter the longitude of the store/vendor/purchase",
-            min_value=-180.0,
-            max_value=180.0,
-            value=-165.0,
-            step=0.01,
-        )
-        user_inputs.append(merch_long)
+        user_inputs = {
+            "category": st.selectbox("Category", categories),
+            "amt": st.number_input(
+                "Amount", min_value=1.0, max_value=30000.00, value=25.0, key="amt"
+            ),
+            "gender": st.radio("Gender", ["M", "F"]),
+            "state": st.selectbox("From what State is the Card Owner from?", states),
+            "lat": st.slider("Enter the lattitude of the card owner", -90.0, 90.0, 20.0, step=0.01),
+            "long": st.slider(
+                "Enter the longitude of the card owner", -180.0, 180.0, -165.0, step=0.01
+            ),
+            "city_pop": st.slider(
+                "Enter the city population of the card owner", 23.0, 2906700.0, 40000.0, step=1.0
+            ),
+            "merch_lat": st.slider("Merchant Latitude", -90.0, 90.0, 20.0, step=0.01),
+            "merch_long": st.slider("Merchant Longitude", -180.0, 180.0, -165.0, step=0.01),
+        }
 
         # Process the inputs and sample from the model
         submitted = st.form_submit_button("Get Prediction")
         if submitted:
             # Convert inputs to the correct format using the expansion operator
-            converted_inputs = convert_inputs(*user_inputs)
+            converted_inputs = convert_inputs(*user_inputs.values())
 
             # Create a DataFrame for the scaler using the feature names to prevent warnings
             input_df = pd.DataFrame([converted_inputs], columns=FEATURE_NAMES)
