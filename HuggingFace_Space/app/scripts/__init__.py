@@ -9,7 +9,15 @@ from .utils import (
     load_label_scaler,
     log_and_stop,
 )
-from .consts import MODEL_WEIGHTS_FULL_PATH, CONFIG_PATH, FEATURE_SCALER_PATH, FEATURE_NAMES
+from .consts import (
+    MODEL_WEIGHTS_FULL_PATH,
+    CONFIG_PATH,
+    FEATURE_SCALER_PATH,
+    FEATURE_NAMES,
+    CATEGORY_MAPPING,
+    GENDER_MAPPING,
+    STATE_MAPPING,
+)
 
 __all__ = [
     "Agent",
@@ -19,6 +27,9 @@ __all__ = [
     "CONFIG_PATH",
     "FEATURE_SCALER_PATH",
     "FEATURE_NAMES",
+    "CATEGORY_MAPPING",
+    "GENDER_MAPPING",
+    "STATE_MAPPING",
     "load_config",
     "load_model",
     "load_feature_scaler",

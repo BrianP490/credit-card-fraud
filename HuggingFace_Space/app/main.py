@@ -10,6 +10,9 @@ from scripts import (
     load_model,
     load_feature_scaler,
     load_label_scaler,
+    CATEGORY_MAPPING,
+    GENDER_MAPPING,
+    STATE_MAPPING,
 )
 
 # Main Loop
@@ -25,75 +28,9 @@ if __name__ == "__main__":
 
     with st.form("my_form"):
 
-        categories = (
-            "entertainment",
-            "food_dining",
-            "gas_transport",
-            "grocery_net",
-            "grocery_pos",
-            "health_fitness",
-            "home",
-            "kids_pets",
-            "misc_net",
-            "misc_pos",
-            "personal_care",
-            "shopping_net",
-            "shopping_pos",
-            "travel",
-        )
-        states = (
-            "AK",
-            "AL",
-            "AR",
-            "AZ",
-            "CA",
-            "CO",
-            "CT",
-            "DC",
-            "DE",
-            "FL",
-            "GA",
-            "HI",
-            "IA",
-            "ID",
-            "IL",
-            "IN",
-            "KS",
-            "KY",
-            "LA",
-            "MA",
-            "MD",
-            "ME",
-            "MI",
-            "MN",
-            "MO",
-            "MS",
-            "MT",
-            "NC",
-            "ND",
-            "NE",
-            "NH",
-            "NJ",
-            "NM",
-            "NV",
-            "NY",
-            "OH",
-            "OK",
-            "OR",
-            "PA",
-            "RI",
-            "SC",
-            "SD",
-            "TN",
-            "TX",
-            "UT",
-            "VA",
-            "VT",
-            "WA",
-            "WI",
-            "WV",
-            "WY",
-        )
+        categories = CATEGORY_MAPPING.keys()
+        states = STATE_MAPPING.keys()
+        genders = GENDER_MAPPING.keys()
 
         st.write("Please provide the following information:")
 
@@ -103,7 +40,7 @@ if __name__ == "__main__":
             "amt": st.number_input(
                 "Amount", min_value=1.0, max_value=30000.00, value=25.0, key="amt"
             ),
-            "gender": st.radio("Gender", ["M", "F"]),
+            "gender": st.radio("Gender", genders),
             "state": st.selectbox("From what State is the Card Owner from?", states),
             "lat": st.slider("Enter the lattitude of the card owner", -90.0, 90.0, 20.0, step=0.01),
             "long": st.slider(
