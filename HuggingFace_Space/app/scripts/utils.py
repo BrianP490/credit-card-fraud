@@ -10,6 +10,8 @@ from .consts import (
     CATEGORY_MAPPING,
     GENDER_MAPPING,
     STATE_MAPPING,
+    INPUT_METADATA,
+    STREAMLIT_VALIDATED,
     MODEL_WEIGHTS_FULL_PATH,
     CONFIG_PATH,
     FEATURE_SCALER_PATH,
@@ -17,100 +19,78 @@ from .consts import (
 from .model import Agent
 
 
-def convert_inputs(*args) -> list:
+def convert_inputs(**kwargs) -> list:
     """Convert user inputs into a list of features for the model.
     Args:
-        *args: Variable length argument list containing user inputs in the following order:
-            category (tbd): Category of the transaction (acceptability tbd).
-            amt (tbd): Amount of the transaction (tbd).
-            gender (tbd): Gender of the card owner (tbd).
-            state (tbd): State of the card owner (tbd).
-            lat (tbd): Lattitude of the card owner's home (tbd).
-            long (tbd): Longitude of the card owner's home (tbd).
-            city_pop (tbd): City population of the card owner (tbd).
-            merch_lat (tbd): Lattitude of the merchant (tbd).
-            merch_long (tbd): Longitude of the merchant (tbd).
+        **kwargs: Dictionary of user inputs (e.g., {'category': 'entertainment', 'amt': 25.0, ...})
     Returns:
         features: A list of converted features ready for model input.
     """
     features = []  # Create empty list to store all the features
 
-    try:
-        # category
-        category = args[0]
-        if not isinstance(category, str):
-            raise ValueError("category must be a string.")
+    for feature_name in FEATURE_NAMES:  # Loop through FEATURE_NAMES
+        try:
+            # Get the value from the kwargs dictionary
+            value = kwargs.get(feature_name)
 
-        category = CATEGORY_MAPPING.get(category, None)
+            # Perform validation (using metadata where possible)
+            if value is None:
+                raise ValueError(f"Missing required input: {feature_name}")
 
-        if category is not None:
-            features.append(category)
+            # --- Mapped Features ---
+            if feature_name == "category":
+                # Use Specified Mapping for feature
+                mapped_value = CATEGORY_MAPPING.get(value, None)
+                if mapped_value is not None:
+                    if not isinstance(mapped_value, float):
+                        raise ValueError(f"{feature_name} must be a float.")
+                    features.append(mapped_value)
+                else:
+                    raise ValueError(f"{feature_name}; value={value}; no mapping.")
 
-        # amt
-        amt = args[1]
-        if not (1.0 <= amt <= 30_000.00):
-            raise ValueError("amt out of range.")
-        features.append(float(amt))
+            elif feature_name == "gender":
+                # Use Specified Mapping for feature
+                mapped_value = GENDER_MAPPING.get(value, None)
+                if mapped_value is not None:
+                    if not isinstance(mapped_value, float):
+                        raise ValueError(f"{feature_name} must be a float.")
+                    features.append(mapped_value)
+                else:
+                    raise ValueError(f"{feature_name}; value={value}; no mapping.")
 
-        # gender
-        gender = args[2]
-        if not isinstance(gender, str):
-            raise ValueError("gender must be a string.")
+            elif feature_name == "state":
+                # Use Specified Mapping for feature
+                mapped_value = STATE_MAPPING.get(value, None)
+                if mapped_value is not None:
+                    if not isinstance(mapped_value, float):
+                        raise ValueError(f"{feature_name} must be a float.")
+                    features.append(mapped_value)
+                else:
+                    raise ValueError(f"{feature_name}; value={value}; no mapping.")
 
-        gender = GENDER_MAPPING.get(gender, None)
+            # ... Add logic for other mapped fields here
 
-        if gender is not None:
-            features.append(gender)
+            # --- Streamlit-Validated Features ---
+            elif feature_name in STREAMLIT_VALIDATED:
+                # Use INPUT_METADATA for range validation
+                meta = INPUT_METADATA.get(feature_name, {})
+                min_v = meta.get("min_value")
+                max_v = meta.get("max_value")
 
-        # state
-        state = args[3]
-        if not isinstance(state, str):
-            raise ValueError("state must be a string.")
+                if min_v is not None and max_v is not None and not (min_v <= value <= max_v):
+                    raise ValueError(f"{feature_name} out of expected range.")
+                features.append(float(value))  # Convert to float
+            # Default action if not covered by logic above
+            else:
+                raise ValueError(f"No conversion for {feature_name}")
+        except ValueError as e:
+            log_and_stop(f"Validation Error for {feature_name}: {e}")
 
-        state = STATE_MAPPING.get(state, None)
-
-        if state is not None:
-            features.append(state)
-
-        # lat
-        lat = args[4]
-        if not isinstance(lat, float):
-            raise ValueError("lat must be a float.")
-        features.append(lat)
-
-        # long
-        long = args[5]
-        if not isinstance(long, float):
-            raise ValueError("long must be a float.")
-        features.append(long)
-
-        # city_pop
-        city_pop = args[6]
-        if not (23.0 <= city_pop <= 2_906_700.0):
-            raise ValueError("city_pop out of range.")
-        features.append(float(city_pop))
-
-        # merch_lat
-        merch_lat = args[7]
-        if not isinstance(merch_lat, float):
-            raise ValueError("merch_lat must be a float.")
-        features.append(merch_lat)
-
-        # merch_long
-        merch_long = args[8]
-        if not isinstance(merch_long, float):
-            raise ValueError("merch_long must be a float.")
-        features.append(merch_long)
-
-        if len(features) != len(FEATURE_NAMES):
-            raise ValueError("Model Missing Input Feature(s). Please check.")
-
-    except IndexError as e:
-        st.error(f"Error in indexing inputs: {e}")
-    except TypeError as e:
-        st.error(f"Type error in input conversion: {e}")
-    except ValueError as e:
-        st.error(f"Value error in input conversion: {e}")
+    # Verify final length
+    if len(features) != len(FEATURE_NAMES):
+        log_and_stop(
+            f"Fatal Error: Final feature list length mismatch. Created list size: {len(features)} | Expected list size: {len(FEATURE_NAMES)}"
+        )
 
     return features
 
@@ -138,11 +118,11 @@ def load_config():
 
 @st.cache_resource
 def load_model():
-    """Helper function that loads the model's architecture and instantiates a model with its trained weights. Returns agent to cpu in evaluation mode. Optimized using streamlit caching.
+    """Helper function that loads the model's architecture and instantiates a model with its trained weights. Optimized using streamlit caching.
     Args:
         N/A
     Returns:
-        Agent (torch.nn.Module)
+        Agent (torch.nn.Module): Returns agent to cpu in evaluation mode.
     """
     try:
         model_weights = torch.load(MODEL_WEIGHTS_FULL_PATH, weights_only=True)
@@ -176,7 +156,8 @@ def load_feature_scaler():
     Args:
         N/A
     Returns:
-        feature_scaler: the loaded scalert object"""
+        feature_scaler: the loaded scalert object
+    """
     # Load feature scaler
     try:
         feature_scaler = joblib.load(FEATURE_SCALER_PATH)
@@ -193,7 +174,8 @@ def load_label_scaler():
     Args:
         N/A
     Returns:
-        label_scaler: the loaded scalert object"""
+        label_scaler: the loaded scalert object
+    """
     # Not used in this implementation
     label_scaler = None
 

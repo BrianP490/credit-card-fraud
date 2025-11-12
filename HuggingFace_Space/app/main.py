@@ -10,13 +10,11 @@ from scripts import (
     load_model,
     load_feature_scaler,
     load_label_scaler,
-    CATEGORY_MAPPING,
-    GENDER_MAPPING,
-    STATE_MAPPING,
+    INPUT_METADATA,
 )
 
 # Main Loop
-# Call this function, during script execution; Main script entry point
+# Main script entry point
 if __name__ == "__main__":
     st.title("Agent")
     st.subheader("Check For Credit Card Fraud", divider=True)
@@ -28,36 +26,47 @@ if __name__ == "__main__":
 
     with st.form("my_form"):
 
-        categories = CATEGORY_MAPPING.keys()
-        states = STATE_MAPPING.keys()
-        genders = GENDER_MAPPING.keys()
-
         st.write("Please provide the following information:")
 
-        # Some links for data validation: https://www.baeldung.com/java-geo-coordinates-validation
-        user_inputs = {
-            "category": st.selectbox("Category", categories),
-            "amt": st.number_input(
-                "Amount", min_value=1.0, max_value=30000.00, value=25.0, key="amt"
-            ),
-            "gender": st.radio("Gender", genders),
-            "state": st.selectbox("From what State is the Card Owner from?", states),
-            "lat": st.slider("Enter the lattitude of the card owner", -90.0, 90.0, 20.0, step=0.01),
-            "long": st.slider(
-                "Enter the longitude of the card owner", -180.0, 180.0, -165.0, step=0.01
-            ),
-            "city_pop": st.slider(
-                "Enter the city population of the card owner", 23.0, 2906700.0, 40000.0, step=1.0
-            ),
-            "merch_lat": st.slider("Merchant Latitude", -90.0, 90.0, 20.0, step=0.01),
-            "merch_long": st.slider("Merchant Longitude", -180.0, 180.0, -165.0, step=0.01),
-        }
+        user_inputs = {}
+
+        # ----------------------------------------------------
+        # Loop over metadata to create widgets
+        # ----------------------------------------------------
+        for key, meta in INPUT_METADATA.items():
+            title = meta["title"]
+            widget_type = meta["widget_type"]
+
+            # Create widgets dynamically
+            if widget_type == "selectbox":
+                user_inputs[key] = st.selectbox(title, meta["options"])
+
+            elif widget_type == "radio":
+                user_inputs[key] = st.radio(title, meta["options"])
+
+            elif widget_type == "number_input":
+                user_inputs[key] = st.number_input(
+                    title,
+                    min_value=meta["min_value"],
+                    max_value=meta["max_value"],
+                    value=meta["value"],
+                    key=key,  # Use the key from metadata
+                )
+
+            elif widget_type == "slider":
+                user_inputs[key] = st.slider(
+                    title, meta["min_value"], meta["max_value"], meta["value"], step=meta["step"]
+                )
+
+            # ----------------------------------------------------
+            # Add other widget types as needed (e.g., st.text_input)
+            # ----------------------------------------------------
 
         # Process the inputs and sample from the model
         submitted = st.form_submit_button("Get Prediction")
         if submitted:
-            # Convert inputs to the correct format using the expansion operator
-            converted_inputs = convert_inputs(*user_inputs.values())
+            # Convert inputs to the correct format using the keyword expansion operator
+            converted_inputs = convert_inputs(**user_inputs)
 
             # Create a DataFrame for the scaler using the feature names to prevent warnings
             input_df = pd.DataFrame([converted_inputs], columns=FEATURE_NAMES)
@@ -67,9 +76,15 @@ if __name__ == "__main__":
 
             inputs = torch.tensor(inputs, dtype=torch.float32)  # Convert to tensor
 
-            unnormalized_pred = agent.get_prediction(inputs)
+            # ----------------------------------------------------
+            # Modify for Each Machine Learning Task
+            # ----------------------------------------------------
 
-            prediction_index = torch.argmax(unnormalized_pred)
+            output = agent.get_prediction(inputs)
+
+            # Unscale outputs with the label scaler if necessary
+
+            prediction_index = torch.argmax(output)
             prediction_label = (
                 "FRAUD" if prediction_index == 1 else "NOT FRAUD"
             )  # Map the prediction index to a label

@@ -32,6 +32,17 @@ FEATURE_NAMES = [
     "merch_long",
 ]
 
+# Create list of features that will be only validated during the streamlit user input field
+STREAMLIT_VALIDATED = [
+    "amt",
+    "lat",
+    "long",
+    "city_pop",
+    "merch_lat",
+    "merch_long",
+]
+
+# Mappings
 CATEGORY_MAPPING = {
     "entertainment": 0.0,
     "food_dining": 1.0,
@@ -103,4 +114,70 @@ STATE_MAPPING = {
     "WI": 48.0,
     "WV": 49.0,
     "WY": 50.0,
+}
+
+# Information for streamlit user input section; keys must match with FEATURE_NAMES list content
+INPUT_METADATA = {
+    "category": {
+        "title": "Category of Transaction",
+        "widget_type": "selectbox",
+        "options": CATEGORY_MAPPING.keys(),
+    },
+    "amt": {
+        "title": "Amount",
+        "widget_type": "number_input",
+        "min_value": 1.0,
+        "max_value": 30000.00,
+        "value": 25.0,
+    },
+    "gender": {
+        "title": "Gender of Card Owner",
+        "widget_type": "radio",
+        "options": GENDER_MAPPING.keys(),
+    },
+    "state": {
+        "title": "Card Owner's State",
+        "widget_type": "selectbox",
+        "options": STATE_MAPPING.keys(),
+    },
+    "lat": {
+        "title": "Card Owner's Latitude",
+        "widget_type": "slider",
+        "min_value": -90.0,
+        "max_value": 90.0,
+        "value": 20.0,
+        "step": 0.01,
+    },
+    "long": {
+        "title": "Card Owner's Longitude",
+        "widget_type": "slider",
+        "min_value": -180.0,
+        "max_value": 180.0,
+        "value": -165.0,
+        "step": 0.01,
+    },
+    "city_pop": {
+        "title": "City Population of the Card Owner",
+        "widget_type": "slider",
+        "min_value": 23.0,
+        "max_value": 2906700.0,
+        "value": 40000.0,
+        "step": 1.0,
+    },
+    "merch_lat": {
+        "title": "Merchant's Latitude",
+        "widget_type": "slider",
+        "min_value": -90.0,
+        "max_value": 90.0,
+        "value": 20.0,
+        "step": 0.01,
+    },
+    "merch_long": {
+        "title": "Merchant's Longitude",
+        "widget_type": "slider",
+        "min_value": -180.0,
+        "max_value": 180.0,
+        "value": -165.0,
+        "step": 0.01,
+    },
 }

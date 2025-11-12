@@ -91,6 +91,6 @@ class Agent(torch.nn.Module):
             if not isinstance(features, torch.Tensor):  # Check if features is not already a tensor
                 features = torch.tensor(features, dtype=torch.float)
             prediction = self.forward(features)  # Run a forward pass through the model
-        # if features.size(0) == 1:  # This method checks if there is only 1 element in a 1D tensor
-        #     return prediction.item()  # Returns a Python scalar for a single observation
+        if features.size(0) == 1:  # This method checks if there is only 1 element in a 1D tensor
+            return prediction.squeeze()  # Returns a single prediction
         return prediction  # Returns a tensor of predictions
