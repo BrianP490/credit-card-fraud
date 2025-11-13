@@ -1,10 +1,13 @@
 """This Module is the main entry point for the Streamlit application."""
 
 # main.py
+import logging
 import pandas as pd
 import torch
 import streamlit as st
 from scripts import (
+    load_config,
+    setup_logger,
     convert_inputs,
     FEATURE_NAMES,
     load_model,
@@ -13,16 +16,21 @@ from scripts import (
     INPUT_METADATA,
 )
 
-# Main Loop
+# Configure Logger
+logging_config = load_config()["logging"]
+
+logger = setup_logger(logging_config)
+
+
 # Main script entry point
 if __name__ == "__main__":
     st.title("Agent")
     st.subheader("Check For Credit Card Fraud", divider=True)
 
-    feature_scaler = load_feature_scaler()
-    label_scaler = load_label_scaler()
+    feature_scaler = load_feature_scaler(logger)
+    label_scaler = load_label_scaler(logger)
 
-    agent = load_model()
+    agent = load_model(logger)
 
     with st.form("my_form"):
 
@@ -65,6 +73,9 @@ if __name__ == "__main__":
         # Process the inputs and sample from the model
         submitted = st.form_submit_button("Get Prediction")
         if submitted:
+            # DEBUGGING: Log the raw inputs dictionary before processing
+            # logger.info(f"User submitted prediction request with inputs: {user_inputs}")
+
             # Convert inputs to the correct format using the keyword expansion operator
             converted_inputs = convert_inputs(**user_inputs)
 

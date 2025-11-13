@@ -1,5 +1,8 @@
 """This module contains utility functions for input conversion and validation."""
 
+import os
+import logging
+from logging import Logger  # For type hinting
 import json
 import joblib
 import streamlit as st
@@ -17,6 +20,84 @@ from .consts import (
     FEATURE_SCALER_PATH,
 )
 from .model import Agent
+
+
+def setup_logger(config: dict, propogate: bool = False) -> Logger:
+    """Sets up and returns a named logger based on the provided config dictionary. The new logger will have different handlers based on the config.
+
+    Args:
+        config (dict): Dictionary containing logging configuration.
+        propogate (bool): Whether to allow log messages to propagate to ancestor loggers.
+    Returns:
+        Logger: Configured logger instance.
+    """
+    logger_name = config.get("logger_name", "main")
+    log_to_file = config.get("log_to_file", True)  # Set whether to log to a logfile or not
+    log_file = config.get("log_file", "logs/app.log")  # Get the log file path
+    log_lvl = config.get("log_level", "INFO")
+    log_level = getattr(logging, log_lvl.upper(), logging.INFO)  # Set fallback if invalid input
+    log_mode = config.get("log_mode", "w")  # Set the log file mode
+    log_format = config.get("log_format", "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    date_format = config.get("date_format", "%Y-%m-%d %H:%M:%S")
+    log_to_console = config.get("log_to_console", True)  # Set whether to log to console or not
+
+    handlers = []  # Initialize the list of logging handlers
+
+    logger = logging.getLogger(logger_name)  # Create logger object with the specified name
+
+    if not log_to_file and not log_to_console:
+        # If no handlers are specified by the config
+        print(
+            f"Warning: No logging handlers configured for {logger_name}.\nVerbose Logging will be disabled.\nIn 'config/config.json', set ['log_to_file': true] or ['log_to_console': true] if you want to change the logging behavior.",
+            flush=True,
+        )
+    else:
+        # Create log parent directory if it doesn't exist
+        parent_dir = os.path.dirname(log_file)  # Get the parent directory of the log file
+        if parent_dir and parent_dir != ".":
+            try:
+                os.makedirs(name=parent_dir, exist_ok=True)
+                print(
+                    f"Parent directory '{parent_dir}' used to store the log file.", flush=True
+                )  # flush=True to ensure the message is printed immediately
+            except OSError as e:
+                print(
+                    f"Error creating directory '{parent_dir}': {e} INFO: Using default log file 'app.log' instead.",
+                    flush=True,
+                )
+                log_file = "app.log"  # Fall back to a default log file if problem occurs.
+
+        # Remove all old handlers inherrited from the root logger
+        for handler in logger.handlers[:]:
+            handler.close()
+            logger.removeHandler(handler)
+
+        formatter = logging.Formatter(
+            fmt=log_format, datefmt=date_format
+        )  # Create a formatter for the log messages
+
+        if log_to_console:
+            console_handler = (
+                logging.StreamHandler()
+            )  # Initialize sending log messages to the console (stdout)
+            console_handler.setFormatter(formatter)  # Set the formatter for the console handler
+            handlers.append(console_handler)  # Add the console_handler to the list of handlers
+        if log_to_file:
+            file_handler = logging.FileHandler(
+                filename=log_file, mode=log_mode, encoding="utf-8"
+            )  # Initialize sending log messages to a file; Enables emoji use
+            file_handler.setFormatter(formatter)  # Set the style for the console handler
+            handlers.append(file_handler)  # Add the file_handler to the list of handlers
+
+        # Add the handlers to the logger
+        for handler in handlers:
+            logger.addHandler(handler)
+
+    logger.setLevel(log_level)  # Set logger minimum log level
+
+    logger.propagate = propogate  # Prevent the log messages from being propagated to the root logger; gets rid of the root logger's default handlers,
+
+    return logger
 
 
 def convert_inputs(**kwargs) -> list:
@@ -107,28 +188,37 @@ def load_config():
         with open(CONFIG_PATH, "r", encoding="utf-8") as f:
             config = json.load(f)
     except FileNotFoundError:
-        message = f"❌ Configuration file not found at '{CONFIG_PATH}'. \nPlease ensure the file exists or fix path to file."
-        log_and_stop(message)
+        # For streamlit to acknowledge the '\n' character as a newline use '  \n'. Streamlit processes strings as Markdown
+        message = f"❌ Configuration file not found at '{CONFIG_PATH}'.  \nPlease ensure the file exists or fix path to file."
     except json.JSONDecodeError as e:
-        message = f"❌ Failed to parse JSON: {e}"
-        log_and_stop(message)
+        message = f"❌ Failed to parse JSON: {e}."
+    # This block executes ONLY if the 'try' block succeeds (no exceptions)
+    else:
+        return config
 
-    return config
+    # **This block executes after try/except/else**
+    finally:
+        # Check if a 'message' was set by any of the 'except' blocks.
+        if "message" in locals():
+            message += "  \nStopping Execution."  # Add the common suffix
+            print(message)
+            st.error(message)
+            st.stop()
 
 
 @st.cache_resource
-def load_model():
+def load_model(_logger: Logger):
     """Helper function that loads the model's architecture and instantiates a model with its trained weights. Optimized using streamlit caching.
     Args:
-        N/A
+        _logger (Logger): The logger instance to log messages. Use underscore to prevent hashing by Streamlit.
     Returns:
         Agent (torch.nn.Module): Returns agent to cpu in evaluation mode.
     """
     try:
         model_weights = torch.load(MODEL_WEIGHTS_FULL_PATH, weights_only=True)
-        print(f"✅ Model weights loaded successfully from {MODEL_WEIGHTS_FULL_PATH}")
+        _logger.info(f"✅ Model weights loaded successfully from {MODEL_WEIGHTS_FULL_PATH}")
     except FileNotFoundError:
-        message = f"❌ Model Weights file not found at '{MODEL_WEIGHTS_FULL_PATH}'. \nPlease ensure the file exists."
+        message = f"❌ Model Weights file not found at '{MODEL_WEIGHTS_FULL_PATH}'.  \nPlease ensure the file exists."
         log_and_stop(message)
 
     CONFIG = load_config()
@@ -151,28 +241,28 @@ def load_model():
 
 
 @st.cache_data
-def load_feature_scaler():
+def load_feature_scaler(_logger: Logger):
     """Loads the feature scaler using the global variable. Optimized using streamlit caching.
     Args:
-        N/A
+        _logger (Logger): The logger instance to log messages. Use underscore to prevent hashing by Streamlit.
     Returns:
         feature_scaler: the loaded scalert object
     """
     # Load feature scaler
     try:
         feature_scaler = joblib.load(FEATURE_SCALER_PATH)
-        print(f"✅ Feature Scaler loaded successfully from {FEATURE_SCALER_PATH}")
+        _logger.info(f"✅ Feature Scaler loaded successfully from {FEATURE_SCALER_PATH}")
     except FileNotFoundError:
-        message = f"❌ Configuration file not found at '{FEATURE_SCALER_PATH}'. \nPlease ensure the file exists or fix path to file."
+        message = f"❌ Scaler file not found at '{FEATURE_SCALER_PATH}'.  \nPlease ensure the file exists or fix path to file.  \nStopping Execution"
         log_and_stop(message)
     return feature_scaler
 
 
 @st.cache_data
-def load_label_scaler():
+def load_label_scaler(_logger: Logger):
     """Loads the label scaler using the global variable. Optimized using streamlit caching.
     Args:
-        N/A
+        _logger (Logger): The logger instance to log messages. Use underscore to prevent hashing by Streamlit.
     Returns:
         label_scaler: the loaded scalert object
     """
@@ -183,12 +273,14 @@ def load_label_scaler():
 
 
 def log_and_stop(message: str):
-    """Helper function to log to terminal. Shows message to Streamlit UI and exits the program.Args:
-        NN/Ane
+    """Helper function to log relevant messages. Handles message and exits the program.
+    Args:
+        message (str): The message to log and display
     Returns:
         N/A
     """
-
-    print(message)  # Console
+    logger_name = load_config()["logging"]["logger_name"]
+    logger = logging.getLogger(logger_name)
+    logger.info(message, exc_info=False, stack_info=False)  # Console
     st.error(message)  # Streamlit UI
     st.stop()  # Stops Streamlit app

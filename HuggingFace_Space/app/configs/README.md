@@ -8,7 +8,7 @@ For the model architecture, such as the number of repeating model blocks.
 
 - `in_dim`  
   - **Type**: `int`  
-  - **Default**: `5`  
+  - **Default**: `9`  
   - **Description**: Input dimension size.
 
 - `intermediate_dim`  
@@ -18,7 +18,7 @@ For the model architecture, such as the number of repeating model blocks.
 
 - `out_dim`  
   - **Type**: `int`  
-  - **Default**: `1`  
+  - **Default**: `2`  
   - **Description**: Output dimension size.
 
 - `num_blocks`  
@@ -57,7 +57,7 @@ Used to configure the error/info logging behaviors.
 
 - `log_mode`  
   - **Type**: `str`  
-  - **Default**: `w`  
+  - **Default**: `a`  
   - **Description**: File mode for logging (e.g., 'w' for overwrite, 'a' for appending).
 
 - `log_format`  

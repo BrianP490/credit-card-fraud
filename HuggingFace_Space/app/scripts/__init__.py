@@ -2,6 +2,7 @@
 
 from .model import Agent, ModuleLayer
 from .utils import (
+    setup_logger,
     convert_inputs,
     load_config,
     load_model,
@@ -21,6 +22,8 @@ from .consts import (
 )
 
 __all__ = [
+    "load_config",
+    "setup_logger",
     "Agent",
     "ModuleLayer",
     "convert_inputs",
