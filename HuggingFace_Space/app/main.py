@@ -1,6 +1,5 @@
 """This Module is the main entry point for the Streamlit application."""
 
-# main.py
 import logging
 import pandas as pd
 import torch

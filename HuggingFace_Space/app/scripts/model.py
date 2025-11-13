@@ -1,6 +1,5 @@
 """This module contains the definition of the neural network model used for predictions."""
 
-# model.py
 import torch
 
 

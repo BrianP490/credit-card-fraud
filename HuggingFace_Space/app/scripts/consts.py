@@ -4,6 +4,7 @@ This module defines constants for file paths and feature names used in the appli
 
 from pathlib import Path
 
+# Get the Grandparent's directory by taking the absolute path of consts.py and going up two levels.
 BASE_DIR = Path(__file__).resolve().parents[1]
 
 CONFIG_DIRECTORY = "./configs"
