@@ -23,19 +23,25 @@ logger = setup_logger(logging_config)
 
 # Main script entry point
 if __name__ == "__main__":
+
     st.title("Agent")
+
     st.subheader("Check For Credit Card Fraud", divider=True)
 
+    # Load Scalers
     feature_scaler = load_feature_scaler(logger)
+
     label_scaler = load_label_scaler(logger)
 
+    # Build the model architecture and load in the model weights
     agent = load_model(logger)
 
+    # Create a Streamlit form to take in user inputs
     with st.form("my_form"):
 
         st.write("Please provide the following information:")
 
-        user_inputs = {}
+        user_inputs = {}  # Variable to store the user's input
 
         # ----------------------------------------------------
         # Loop over metadata to create widgets
@@ -99,7 +105,7 @@ if __name__ == "__main__":
                 "FRAUD" if prediction_index == 1 else "NOT FRAUD"
             )  # Map the prediction index to a label
 
-            st.write("---")  # Separator
+            st.write("---")  # Separator for formatting
 
             # --- Streamlit Output ---
             st.subheader("Classification Result:")

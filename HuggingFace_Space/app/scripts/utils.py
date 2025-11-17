@@ -302,6 +302,6 @@ def log_and_stop(message: str):
 
     message += "  \nStopping Execution."  # Add the common suffix
 
-    logger.info(message, exc_info=False, stack_info=False)  # Console
-    st.error(message)  # Streamlit UI
+    logger.info(message, exc_info=False, stack_info=False)  # Console output
+    st.error(message)  # Streamlit UI output
     st.stop()  # Stops Streamlit app
