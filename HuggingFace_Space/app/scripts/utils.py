@@ -166,6 +166,8 @@ def convert_inputs(**kwargs) -> list:
                 raise ValueError(f"No conversion for {feature_name}")
         except ValueError as e:
             log_and_stop(f"Validation Error for {feature_name}: {e}")
+        except Exception as e:  # Catch all other exceptions
+            log_and_stop(f"An unexpected fatal error occurred: {e}")
 
     # Verify final length
     if len(features) != len(FEATURE_NAMES):
@@ -184,6 +186,7 @@ def load_config():
     Returns:
         config (dict): the python dictionary containing configuration data
     """
+    message = ""  # Initialize variable in case of errors
     try:
         with open(CONFIG_PATH, "r", encoding="utf-8") as f:
             config = json.load(f)
@@ -192,6 +195,8 @@ def load_config():
         message = f"❌ Configuration file not found at '{CONFIG_PATH}'.  \nPlease ensure the file exists or fix path to file."
     except json.JSONDecodeError as e:
         message = f"❌ Failed to parse JSON: {e}."
+    except Exception as e:  # Catch all other exceptions
+        message = f"An unexpected fatal error occurred: {e}"
     # This block executes ONLY if the 'try' block succeeds (no exceptions)
     else:
         return config
@@ -199,7 +204,7 @@ def load_config():
     # **This block executes after try/except/else**
     finally:
         # Check if a 'message' was set by any of the 'except' blocks.
-        if "message" in locals():
+        if message:
             message += "  \nStopping Execution."  # Add the common suffix
             print(message)
             st.error(message)
@@ -214,6 +219,7 @@ def load_model(_logger: Logger):
     Returns:
         Agent (torch.nn.Module): Returns agent to cpu in evaluation mode.
     """
+    message = ""  # Initialize variable in case of errors
     try:
         model_weights = torch.load(MODEL_WEIGHTS_FULL_PATH, weights_only=True)
         _logger.info(f"✅ Model weights loaded successfully from {MODEL_WEIGHTS_FULL_PATH}")
@@ -229,15 +235,19 @@ def load_model(_logger: Logger):
         agent.load_state_dict(state_dict=model_weights)
     except RuntimeError as e:
         message = f"❌ A runtime error occurred while creating model or loading model weights: {e}"
-        log_and_stop(message)
     except FileNotFoundError as e:
         message = f"❌ Model weights file not found: {e}"
-        log_and_stop(message)
     except KeyError as e:
         message = f"❌ Missing key in model configuration: {e}"
-        log_and_stop(message)
-
-    return agent.eval().to("cpu")
+    except Exception as e:  # Catch all other exceptions
+        message = f"An unexpected fatal error occurred: {e}"
+    # Execute if no exception was caught
+    else:
+        return agent.eval().to("cpu")
+    # If exception was thrown continue to the finally block
+    finally:
+        if message:
+            log_and_stop(message)
 
 
 @st.cache_data
@@ -248,14 +258,22 @@ def load_feature_scaler(_logger: Logger):
     Returns:
         feature_scaler: the loaded scalert object
     """
+    message = ""  # Initialize variable in case of errors
     # Load feature scaler
     try:
         feature_scaler = joblib.load(FEATURE_SCALER_PATH)
         _logger.info(f"✅ Feature Scaler loaded successfully from {FEATURE_SCALER_PATH}")
     except FileNotFoundError:
-        message = f"❌ Scaler file not found at '{FEATURE_SCALER_PATH}'.  \nPlease ensure the file exists or fix path to file.  \nStopping Execution"
-        log_and_stop(message)
-    return feature_scaler
+        message = f"❌ Scaler file not found at '{FEATURE_SCALER_PATH}'.  \nPlease ensure the file exists or fix path to file."
+    except Exception as e:  # Catch all other exceptions
+        message = f"An unexpected fatal error occurred: {e}"
+    # Execute if no exception was caught
+    else:
+        return feature_scaler
+    # If exception was thrown continue to the finally block
+    finally:
+        if message:
+            log_and_stop(message)
 
 
 @st.cache_data
@@ -281,6 +299,9 @@ def log_and_stop(message: str):
     """
     logger_name = load_config()["logging"]["logger_name"]
     logger = logging.getLogger(logger_name)
+
+    message += "  \nStopping Execution."  # Add the common suffix
+
     logger.info(message, exc_info=False, stack_info=False)  # Console
     st.error(message)  # Streamlit UI
     st.stop()  # Stops Streamlit app
