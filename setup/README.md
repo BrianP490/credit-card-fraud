@@ -2,7 +2,7 @@
 
 1. `CC_env`
     - Requirements file: **requirements.yaml**
-    - Used during model development and training.
+    - Used during Model Development and Training.
 
 2. `strl_env`
     - Requirements file: **streamlit_dev.yaml**
