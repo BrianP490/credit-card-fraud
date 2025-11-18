@@ -1,6 +1,6 @@
 # 🗂️ Configuration File Documentation
 
-This document describes the parameters available in the [`/configs/config.json`](./config.json) file.
+This document describes the parameters available in the [`./configs/config.json`](./config.json) file.
 
 Note: See ['Simulated Args'](#simulated-args) section for more information on ipynb tesing.
 
