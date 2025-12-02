@@ -55,7 +55,12 @@ if __name__ == "__main__":
                 user_inputs[key] = st.selectbox(title, meta["options"])
 
             elif widget_type == "radio":
-                user_inputs[key] = st.radio(title, meta["options"])
+                user_inputs[key] = st.radio(
+                    title,
+                    options=meta["options"],
+                    horizontal=meta.get("horizontal", None),
+                    index=meta.get("preselected_index", 0),
+                )
 
             elif widget_type == "number_input":
                 user_inputs[key] = st.number_input(
@@ -64,11 +69,16 @@ if __name__ == "__main__":
                     max_value=meta["max_value"],
                     value=meta["value"],
                     key=key,  # Use the key from metadata
+                    step=meta.get("step", None),
                 )
 
             elif widget_type == "slider":
                 user_inputs[key] = st.slider(
-                    title, meta["min_value"], meta["max_value"], meta["value"], step=meta["step"]
+                    title,
+                    meta["min_value"],
+                    meta["max_value"],
+                    meta["value"],
+                    step=meta.get("step", None),
                 )
 
             # ----------------------------------------------------

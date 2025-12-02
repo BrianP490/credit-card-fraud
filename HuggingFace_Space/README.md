@@ -15,10 +15,10 @@ license: apache-2.0
 
 # 💳 Card Fraud Detection
 
-## Project Overview
+## 🔎 Project Overview
 This project is a Streamlit-based Agent that uses PyTorch to load a trained model and predicts whether or not a card transaction is fraudulent or not.
 
-## Features
+## 📋 Features
 - Interactive UI built with Streamlit
 - Loads a trained PyTorch model
 - Accepts user input for transaction information
@@ -26,6 +26,6 @@ This project is a Streamlit-based Agent that uses PyTorch to load a trained mode
 - Lightweight and easy to deploy
 
 
-## Interact using the App Tab
+## 📲 Interact using the App Tab
 
 Enter in all the required fields and get the agent's prediction.

@@ -8,6 +8,7 @@ class ModuleLayer(torch.nn.Module):
 
     def __init__(self, intermediate_dim=32, dropout_rate=0.1):
         """Initializer for the 'ModuleLayer' class.
+
         Args:
             intermediate_dim (int): The dimension of the intermediate layer.
             dropout_rate (float): The dropout rate to apply after the ReLU activation.
@@ -20,8 +21,10 @@ class ModuleLayer(torch.nn.Module):
 
     def forward(self, x):
         """Forward pass of the layer block.
+
         Args:
             x (torch.Tensor): Input tensor.
+
         Returns:
             torch.Tensor: Output tensor passing the input through the layer operations.
         """
@@ -39,6 +42,7 @@ class Agent(torch.nn.Module):
 
     def __init__(self, cfg):
         """Initializer for the 'Agent' class.
+
         Args:
             cfg (dict): Configuration dictionary containing model parameters.
         """
@@ -46,6 +50,7 @@ class Agent(torch.nn.Module):
         self.linear = torch.nn.Linear(
             in_features=cfg["in_dim"], out_features=cfg["intermediate_dim"]
         )
+
         self.layers = torch.nn.Sequential(
             *[
                 ModuleLayer(
@@ -54,12 +59,15 @@ class Agent(torch.nn.Module):
                 for _ in range(int(cfg["num_blocks"]))
             ]
         )
+
         self.out = torch.nn.Linear(in_features=cfg["intermediate_dim"], out_features=cfg["out_dim"])
 
     def forward(self, x):
         """Forward pass through the Agent's Layers.
+
         Args:
             x (torch.Tensor): Input tensor.
+
         Returns:
             x (torch.Tensor): Output tensor after passing through the network.
         """
@@ -70,10 +78,12 @@ class Agent(torch.nn.Module):
 
     def get_prediction(self, features):
         """Get the deterministic prediction on a single observation or a batch of observations.
+
         Args:
-            features (torch.tensor): the agent's input features. Expected shape is either
+            features (torch.tensor): The agent's input features. Expected shape is either
             `(num_features,)` for a single observation
             or `(batch_size, num_features)` for a batch of observations.
+
         Returns:
             prediction_probs (torch.tensor):
                 - If `features` is a single features (i.e., `features.dim() == 1`), returns a

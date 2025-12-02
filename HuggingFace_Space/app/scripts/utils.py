@@ -28,6 +28,7 @@ def setup_logger(config: dict, propogate: bool = False) -> Logger:
     Args:
         config (dict): Dictionary containing logging configuration.
         propogate (bool): Whether to allow log messages to propagate to ancestor loggers.
+
     Returns:
         Logger: Configured logger instance.
     """
@@ -102,8 +103,10 @@ def setup_logger(config: dict, propogate: bool = False) -> Logger:
 
 def convert_inputs(**kwargs) -> list:
     """Convert user inputs into a list of features for the model.
+
     Args:
         **kwargs: Dictionary of user inputs (e.g., {'category': 'entertainment', 'amt': 25.0, ...})
+
     Returns:
         features: A list of converted features ready for model input.
     """
@@ -181,8 +184,10 @@ def convert_inputs(**kwargs) -> list:
 @st.cache_data
 def load_config():
     """Loads configuration file using global variable. Optimized using streamlit caching.
+
     Args:
         N/A
+
     Returns:
         config (dict): the python dictionary containing configuration data
     """
@@ -214,8 +219,10 @@ def load_config():
 @st.cache_resource
 def load_model(_logger: Logger):
     """Helper function that loads the model's architecture and instantiates a model with its trained weights. Optimized using streamlit caching.
+
     Args:
         _logger (Logger): The logger instance to log messages. Use underscore to prevent hashing by Streamlit.
+
     Returns:
         Agent (torch.nn.Module): Returns agent to cpu in evaluation mode.
     """
@@ -253,8 +260,10 @@ def load_model(_logger: Logger):
 @st.cache_data
 def load_feature_scaler(_logger: Logger):
     """Loads the feature scaler using the global variable. Optimized using streamlit caching.
+
     Args:
         _logger (Logger): The logger instance to log messages. Use underscore to prevent hashing by Streamlit.
+
     Returns:
         feature_scaler: the loaded scalert object
     """
@@ -279,8 +288,10 @@ def load_feature_scaler(_logger: Logger):
 @st.cache_data
 def load_label_scaler(_logger: Logger):
     """Loads the label scaler using the global variable. Optimized using streamlit caching.
+
     Args:
         _logger (Logger): The logger instance to log messages. Use underscore to prevent hashing by Streamlit.
+
     Returns:
         label_scaler: the loaded scalert object
     """
@@ -292,8 +303,10 @@ def load_label_scaler(_logger: Logger):
 
 def log_and_stop(message: str):
     """Helper function to log relevant messages. Handles message and exits the program.
+
     Args:
         message (str): The message to log and display
+
     Returns:
         N/A
     """

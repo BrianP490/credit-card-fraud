@@ -138,6 +138,7 @@ INPUT_METADATA = {
         "title": "Gender of Card Owner",
         "widget_type": "radio",
         "options": GENDER_MAPPING.keys(),
+        "horizontal": True,
     },
     "state": {
         "title": "Card Owner's State",
