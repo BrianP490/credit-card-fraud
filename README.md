@@ -12,9 +12,14 @@ The scope of the project is to make an agent that is useful in classifying if a 
 This project is useful in understanding classification problems with this case only having to identify between 2 classes. After understanding the process for 2-class classification, the same procedure can be scaling up to a much wider multi-class classification.
 
 ## 💻 Installation Instructions:
+
 1. Make sure you have [Conda](https://conda.org/) installed which is the virtual environment and package manager system used.
 
 2. Clone the repository
+
+    ```bash
+    git clone INSERT-GITHUB-URL-HERE
+    ```
 
     ```bash
     # Example
@@ -28,7 +33,9 @@ This project is useful in understanding classification problems with this case o
 
 <details>
 
-You can customize the behavior of the training script by providing the following command-line arguments:
+Complete configuration file documentation found in: [`./configs/README.md`](./configs/README.md)
+
+However, these are the most important command-line arguments that affect the behavior of the training script:
 
 - --epochs
 
