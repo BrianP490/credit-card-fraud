@@ -1,6 +1,8 @@
 Data/
 .vscode/
 models/
+*.pt
+*.joblib
 .git/
 logs/
 __pycache__/
