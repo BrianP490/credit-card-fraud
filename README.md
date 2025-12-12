@@ -18,12 +18,7 @@ This project is useful in understanding classification problems with this case o
 2. Clone the repository
 
     ```bash
-    git clone INSERT-GITHUB-URL-HERE
-    ```
-
-    ```bash
-    # Example
-    C:\Users\brianperez\Desktop\DEV>git clone https://github.com/BrianP490/fake-repository.git
+    git clone https://github.com/BrianP490/credit-card-fraud.git
     ```
 
 3. Create the conda environment for the dependencies 
