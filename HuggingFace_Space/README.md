@@ -1,5 +1,5 @@
 ---
-title: Card Fraud
+title: Card Fraud Agent
 emoji: 💳
 colorFrom: blue
 colorTo: red
@@ -9,7 +9,7 @@ app_port: 8501
 tags:
 - streamlit
 pinned: false
-short_description: Streamlit Demo App
+short_description: Identify Credit Card Fraud
 license: apache-2.0
 ---
 
