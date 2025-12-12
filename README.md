@@ -151,8 +151,39 @@ You can customize the behavior of the training script by providing the following
 ```bash
 # credit-card-fraud
 
+configs/
+    ├── config.json
+    └── README.md
+HuggingFace_Space/
+    ├── app/
+        ├── configs/
+            ├── config.json
+            └── README.md
+        ├── model_weights/
+            └── .gitignore
+        ├── Scalers/
+            └── .gitignore
+        ├── scripts/
+            ├── __init__.py
+            ├── consts.py
+            ├── model.py
+            └── utils.py
+        └── main.py
+    ├── Dockerfile
+    ├── README.md
+    └── requirements.txt
+notebooks/
+    ├── analyze_data.ipynb
+    ├── create_dataloader.ipynb
+    ├── sample_model.ipynb
+    └── train_model_01.ipynb
 setup/
-    └── requirements.yaml
+    ├── README.md
+    ├── requirements.yaml
+    └── streamlit_dev.yaml
 .gitignore
+.pre-commit-config.yaml
+pyproject.toml
 README.md
+train.py
 ```
